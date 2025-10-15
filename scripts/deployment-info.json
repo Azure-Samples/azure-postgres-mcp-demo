@@ -1,0 +1,15 @@
+{
+  "MCP_SERVER_URI": "https://azure-mcp-postgres-server.graysmoke-6ac73de2.eastus2.azurecontainerapps.io",
+  "ENTRA_APP_CLIENT_ID": "cc51accd-c5c7-440b-8dfc-489c9deedcd4",
+  "ENTRA_APP_OBJECT_ID": "453bc9f6-0125-4de3-9793-b626181ff79d",
+  "ENTRA_APP_SP_OBJECT_ID": "62dc3aeb-9f40-4aa9-83f4-0bb3cb658963",
+  "ENTRA_APP_ROLE_VALUE": "Mcp.Tool.Executor",
+  "ENTRA_APP_ROLE_ID_BY_VALUE": "5feec091-8264-4e3c-a7f8-b6cf4bd18039",
+  "ACA_MI_PRINCIPAL_ID": "4ad0d491-ee7f-4bb2-80a9-e9a99eddeafc",
+  "ACA_MI_DISPLAY_NAME": "azure-mcp-postgres-server",
+  "RESOURCE_GROUP": "abeomor-mcp-rg",
+  "SUBSCRIPTION_ID": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+  "POSTGRES_RESOURCE_GROUP": "abeomor",
+  "POSTGRES_SERVER_NAME": "diskannga",
+  "LOCATION": "eastus2"
+}

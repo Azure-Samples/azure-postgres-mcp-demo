@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build AzMcpPostgresServer",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "server/src/AzMcpPostgresServer.csproj"
+      ],
+      "group": "build",
+      "problemMatcher": ["$msCompile"],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "run AzMcpPostgresServer",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "server/src/AzMcpPostgresServer.csproj"
+      ],
+      "dependsOn": "build AzMcpPostgresServer",
+      "problemMatcher": []
+    },
+    {
+      "label": "watch AzMcpPostgresServer",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "--project",
+        "server/src/AzMcpPostgresServer.csproj",
+        "run"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

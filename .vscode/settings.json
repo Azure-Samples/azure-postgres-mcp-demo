@@ -1,0 +1,7 @@
+{
+  "dotnet.defaultSolution": "AzMcpPostgresServer.sln",
+  "omnisharp.enableEditorConfigSupport": true,
+  "omnisharp.useModernNet": true,
+  "omnisharp.sdkIncludePrereleases": true,
+  "pgsql.pgBinaryDir": "/opt/homebrew/opt/postgresql@16/bin"
+}

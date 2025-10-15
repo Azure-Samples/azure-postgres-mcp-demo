@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Launch (AzMcpPostgresServer)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build AzMcpPostgresServer",
+      "program": "${workspaceFolder:azure-mcp-postgres-server}/server/src/bin/Debug/net8.0/AzMcpPostgresServer.dll",
+      "cwd": "${workspaceFolder:azure-mcp-postgres-server}/server/src",
+      "console": "integratedTerminal",
+      "env": {},
+      "stopAtEntry": false
+    },
+    {
+      "name": ".NET Attach (process)",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}

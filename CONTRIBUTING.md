@@ -1,6 +1,6 @@
-# Contributing to [project-title]
+# Contributing to Azure MCP PostgreSQL Server
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit [Contributor License Agreements](https://cla.opensource.microsoft.com).
 
@@ -11,6 +11,7 @@ provided by the bot. You will only need to do this once across all repos using o
  - [Code of Conduct](#coc)
  - [Issues and Bugs](#issue)
  - [Feature Requests](#feature)
+ - [Development Setup](#setup)
  - [Submission Guidelines](#submit)
 
 ## <a name="coc"></a> Code of Conduct
@@ -27,6 +28,47 @@ Repository. If you would like to *implement* a new feature, please submit an iss
 a proposal for your work first, to be sure that we can use it.
 
 * **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
+
+## <a name="setup"></a> Development Setup
+
+### Prerequisites
+- .NET 8.0 SDK
+- Docker Desktop
+- Azure CLI
+- PostgreSQL Client
+- Azure subscription with access to:
+  - Azure Container Apps
+  - Azure Database for PostgreSQL Flexible Server
+  - Azure Container Registry (optional)
+
+### Local Development
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Azure-Samples/azure-postgres-mcp-demo.git
+   cd azure-postgres-mcp-demo
+   ```
+
+2. Build the project:
+   ```bash
+   dotnet build src/AzMcpPostgresServer.csproj
+   ```
+
+3. Run the project locally:
+   ```bash
+   dotnet run --project src/AzMcpPostgresServer.csproj
+   ```
+
+### Testing
+- Use the provided `mcp-client.html` for testing MCP functionality
+- Follow the deployment scripts in `/scripts` for end-to-end testing
+- Ensure all PostgreSQL connections work with Entra ID authentication
+
+### Docker Development
+Build and test the Docker image:
+```bash
+docker build -f docker/Dockerfile -t azure-mcp-postgres-server .
+docker run -p 8080:8080 azure-mcp-postgres-server
+```
 
 ## <a name="submit"></a> Submission Guidelines
 
@@ -47,14 +89,13 @@ chances of your issue being dealt with quickly:
 * **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be
   causing the problem (line of code or commit)
 
-You can file new issues by providing the above information at the corresponding repository's issues link: 
-replace`[organization-name]` and `[repository-name]` in
-`https://github.com/[organization-name]/[repository-name]/issues/new` .
+You can file new issues by providing the above information at:
+https://github.com/Azure-Samples/azure-postgres-mcp-demo/issues/new
 
 ### <a name="submit-pr"></a> Submitting a Pull Request (PR)
 Before you submit your Pull Request (PR) consider the following guidelines:
 
-* Search the repository's [pull requests](https://github.com/[organization-name]/[repository-name]/pulls) for an open or closed PR
+* Search the repository's [pull requests](https://github.com/Azure-Samples/azure-postgres-mcp-demo/pulls) for an open or closed PR
   that relates to your submission. You don't want to duplicate effort.
 
 * Make your changes in a new git fork:
