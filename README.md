@@ -209,6 +209,8 @@ Use the REST API to create a connections
 
 >[!IMPORTANT] Only works in UAE North Region
 
+<details>
+<summary>Creating connection with REST API</summary>
 ```bash
 PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscriptionID }}/resourcegroups/{{ _.resourceGroup }}/providers/Microsoft.CognitiveServices/accounts/{{ _.account }}/projects/{{ _.project }}/connections/{{ _.connectionName }}?api-version=2025-04-01-preview
 {
@@ -233,8 +235,8 @@ PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscript
   }
 }
 ```
+</details>
 
-OR
 
 In AI Foundry , go to `/build/tools -> connect a tool -> custom tab -> MCP and you can select "project managed identity" `
 
@@ -278,7 +280,7 @@ The script will output properties of the AI Foundry resource and connection that
 
 ### Step 3: Test in AI Foundry
 
-Test your MCP server connection in AI Foundry using natural language queries:
+Test your MCP server connection in AI Foundry Playground using natural language queries:
 
 ```
 List all tables in my PostgreSQL database
@@ -341,13 +343,6 @@ Find tables that contain customer information
 ## Configuration
 
 ### Environment Variables
-
-#### Server Configuration
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `POSTGRES_CONNECTION_STRING` | Yes | PostgreSQL connection string | Auto-configured with managed identity |
-| `ASPNETCORE_ENVIRONMENT` | No | Application environment | `Production` |
-| `ASPNETCORE_URLS` | No | Server URLs | `http://+:8080` |
 
 #### Client Configuration (.env file)
 | Variable | Required | Description | Example |
