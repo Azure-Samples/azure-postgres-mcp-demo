@@ -98,72 +98,84 @@ SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
 
 Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
-### Step 4: (Client) Deploy MI enabled Azure Container Instance 
+### Step 4a: Create AI Foundry Connection
+Use the REST API to create a connections
 
-Deploy an ACI that can be used to test the Azure MCP Postgres server.
+[INFO] Only works in UAE North Region
 
 ```bash
-chmod +x scripts/deploy-aci-client.sh
-./scripts/deploy-aci-client.sh
+PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscriptionID }}/resourcegroups/{{ _.resourceGroup }}/providers/Microsoft.CognitiveServices/accounts/{{ _.account }}/projects/{{ _.project }}/connections/{{ _.connectionName }}?api-version=2025-04-01-preview
+{
+  "tags": null,
+  "location": null,
+  "name": "{connection-name}",
+  "type": "Microsoft.MachineLearningServices/workspaces/connections",
+  "properties": {
+    "authType": "ProjectManagedIdentity",
+    "group": "ServicesAndApps",
+    "category": "RemoteTool",
+    "expiryTime": null,
+    "target": "{ $MCP_SERVER_URI }",
+    "isSharedToAll": true,
+    "sharedUserList": [],
+  "audience": "{ $ENTRA_APP_CLIENT_ID }",
+    "Credentials": {
+    },
+    "metadata": {
+      "ApiType": "Azure"
+    }
+  }
+}
+```
+
+### Step 4b: (Client) Configure AI Foundry Connection
+
+Assign the correct permissions to AI Foundry connection.
+
+```bash
+chmod +x scripts/create-aif-mi-connection-assign-role.sh
+./scripts/create-aif-mi-connection-assign-role.sh \
+  --ai-foundry-project-resource-id "/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.CognitiveServices/accounts/{ai-foundry-resource-name}/projects/{ai-foundry-project-name}" \
+  --connection-name "{connection-name}"
 ```
 
 <details>
 <summary>Example Output of the script</summary>
 
-The script will output instructions for connecting to the ACI and testing the Azure MCP Postgres Server:
+The script will output properties of the AI Foundry resource and connection that was connected:
 
-```bash
-[INFO] To verify the MCP server connection, you can:
-
-1. Connect to the ACI container:
-   az container exec --resource-group "{resource-group}" --name "aci-mcp-verify" --exec-command "/bin/sh"
-
-2. Inside the container, get an access token for the MCP server:
-   TOKEN_RESPONSE=$(curl -s "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource={ENTRA_APP_CLIENT_ID}" -H "Metadata: true")
-   ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r .access_token)
-
-3. Test the MCP server endpoints:
-   # List available tools
-   curl -X POST "{mcp-server-url}" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer $ACCESS_TOKEN" \
-     -d '{"jsonrpc": "2.0", "id": "test", "method": "tools/list", "params": {}}'
-
-4. Access token for mcp-client.html:
-   echo $ACCESS_TOKEN
-
-5. Clean up the ACI when done:
-   az container delete --resource-group "{resource-group}" --name "aci-mcp-verify" --yes
+```json
+{
+  "AI_FOUNDRY_PROJECT_RESOURCE_ID": "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.CognitiveServices/accounts/{ai-foundry-account-name}/projects/{ai-foundry-project-name}",
+  "AI_FOUNDRY_SUBSCRIPTION_ID": "{subscription-id}",
+  "AI_FOUNDRY_RESOURCE_GROUP": "{resource-group}",
+  "AI_FOUNDRY_ACCOUNT_NAME": "{ai-foundry-account-name}",
+  "AI_FOUNDRY_PROJECT_NAME": "{ai-foundry-project-name}",
+  "AI_FOUNDRY_REGION": "{region}",
+  "AI_FOUNDRY_PROJECT_MI_PRINCIPAL_ID": "{managed-identity-principal-id}",
+  "AI_FOUNDRY_PROJECT_MI_TYPE": "SystemAssigned",
+  "AI_FOUNDRY_PROJECT_MI_TENANT_ID": "{tenant-id}",
+  "AI_FOUNDRY_PROJECT_MI_CONNECTION_NAME": "{connection-name}",
+  "AI_FOUNDRY_PROJECT_MI_CONNECTION_TARGET": "https://{mcp-server-uri}",
+  "AI_FOUNDRY_PROJECT_MI_CONNECTION_AUDIENCE": "{entra-app-client-id}"
+}
 ```
 
 </details>
 
-### Step 5: (Optional) Web Client
-
-The repository includes a web-based MCP client for easy testing:
-
-1. Open `mcp-client.html` in your browser  
-2. Enter `MCP_SERVER_URI` from `deployment-info.json`  
-3. Paste the `ACCESS_TOKEN` from ACI  
-4. Run tools (list tools, invoke execute query tool, etc.)  
-
-<details>
-<summary>Example: Invoke execute query tool</summary>
-
-![MCP Client Web Interface](images/Mcp-Client-Html.png)
-
-</details>
+### Step 5: Test in AI Foundry
+[NOTE] Azure MCP server will not return values in the vector column. You can still do vector search, You just can return ve tor values in your results.
 
 ## Appendix
 
-### AI Foundry Project Managed Identity Authentication Flow
+### AI Foundry Project Managed Identity Authentication Flow [Needs to be updated]
 
 For detailed information about how AI Foundry projects will authenticate to Azure MCP servers using managed identity, including SDK usage patterns and sequence diagrams, see: [AI Foundry Project Managed Identity Server Authentication](https://gist.github.com/anuchandy/0726a2565431aaa46616c55830dda241).
 
-### Architecture Diagram
+### Architecture Diagram [Needs to be updated]
 
 <details>
-<summary>Architecture diagram provided by abeomorogbe@microsoft.com and kkravi@microsoft.com</summary>
+<summary>Architecture diagram</summary>
 
 ![Architecture Diagram](images/AIFountry_AzMcpPostgresServer_PostgresDB.png)
 
