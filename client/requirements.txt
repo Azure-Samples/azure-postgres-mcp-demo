@@ -1,0 +1,6 @@
+python-dotenv
+azure-identity
+uvicorn
+azure-ai-agents==1.2.0b5
+azure-ai-projects==1.0.0b12
+azure-core
