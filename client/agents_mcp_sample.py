@@ -58,14 +58,16 @@ with project_client:
         #"command":"postgres_database_query"
         instructions="""
         You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
+        "parameters":      
         {
-        "database": "nlweb_db_2",
-        "resource-group": "abeomor",
-        "server": "diskannga",
-        "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
-        "user": "azure-mcp-postgres-server",
-        learn: true
-        }
+                "database": "ignite_2025",
+                "resource-group": "abeomor",
+                "server": "diskannga",
+                "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+                "table": "product_data_playground",
+                "user": "azure-mcp-postgres-server",       
+        },
+        "learn": true
         """,
         tools=[mcp_tool_config],
     )

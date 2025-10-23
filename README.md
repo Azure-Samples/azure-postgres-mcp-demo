@@ -1,6 +1,8 @@
-# Azure MCP PostgreSQL Server
+# Azure MCP PostgreSQL Server Demo
 
-A Model Context Protocol (MCP) server that enables AI agents to interact with Azure PostgreSQL databases through natural language queries. Supports SQL operations, schema discovery, and data analysis with enterprise-grade security.
+This is a demo repo that will show you how to setup the **Azure Database for Postgres MCP server** that enables AI agents to interact with Azure PostgreSQL databases through natural language queries. Supports SQL operations, schema discovery, and data analysis with enterprise-grade security.
+
+This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)**. This repo will show you how to enable the Postgres specific features and how to connect it **Azure AI Foundry** and other MCP clients to interact with Azure Database for Postgres via MCP
 
 ## Features
 
@@ -8,7 +10,6 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with Az
 - 📊 **Schema Discovery** - Automatic table and column analysis
 - 🔐 **Enterprise Security** - Azure managed identity and Entra ID authentication  
 - 🐳 **Production Ready** - Containerized deployment to Azure Container Apps
-- ⚡ **VS Code Integration** - Works seamlessly with GitHub Copilot Chat
 - 🎯 **Natural Language** - Query databases using conversational AI
 - 🚀 **Easy Deployment** - One-click Azure deployment with complete infrastructure **[Coming Soon]**
 
@@ -16,7 +17,7 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with Az
 
 The system consists of three main components:
 
-1. **MCP Client** (i.e AI Foundry Agent, VSCode etc.): Authenticates to the Azure MCP Server using its Managed Identity.  
+1. **AI Foundry Agent** (Client): Authenticates to the Azure MCP Server using its Managed Identity.  
 
 2. **Azure MCP PostgreSQL Server** (Server): Runs in Azure Container Apps (ACA), using ACA Managed Identity for PostgreSQL access.
 
@@ -33,28 +34,26 @@ The system consists of three main components:
 
 ## Quick Start
 
-### 🌐 Try the MCP Server
-
-Get started with Azure MCP PostgreSQL Server in just a few steps:
+### Deploy MCP Server via Azure Button (Recommended)
 
 **Prerequisites Check**: Ensure you have an Azure PostgreSQL Flexible Server with Entra ID authentication enabled.
 
-### Deploy to Azure (Recommended)
-**One-Click Deployment**: Deploy the complete infrastructure with a single script:
-DEPLOY TO AZURE BUTTON
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.deploy-all-resources.json)
 
-### Deploy via azdup
-
+### Deploy to Azure via azd up
+Deploy the complete infrastructure with a single script:
 ```bash
 azd up
 ```
-
 **What gets deployed:** Azure Container Apps, Managed Identity, Entra ID App Registration with full RBAC setup.
 
-### Test MCP server
-Test the MCP toolkit immediately using the web interface:
+### Deploy manually
+In case azd up or one click deploy failed. You can set up manually. In the [detailed Setup](#detailed-setup) sections
 
-**Deployed UI:** https://mcp-toolkit-app.greenrock-3ca4379b.eastus.azurecontainerapps.io
+### 🌐 Test MCP server
+Test the MCP immediately using the web interface:
+
+**Deployed UI:** [URL]
 
 The UI allows you to:
 
@@ -62,13 +61,45 @@ The UI allows you to:
 * List available MCP tools
 * Test tools with interactive parameter input
 * View formatted JSON responses
-* Explore all 7 MCP tools without VS Code dependency
+* Explore all MCP tools
 
 ### Add Azure Postgres MCP URI to AI Foundry
 
 **Via Azure AI Foundry UI:**
 
-TBA
+In AI Foundry , go to `/build/tools -> connect a tool -> custom tab -> MCP and you can select "project managed identity" `
+
+![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+
+Give the agent instrucitons:
+
+```
+You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
+"parameters":      
+  {
+        "database": "<DATABASE_NAME>",
+        "resource-group": "<RESOURCE_GROUP>",
+        "server": "<SERVER_NAME>",
+        "subscription": "<SUBSCRIPTION_ID>",
+        "table": "<TABLE_NAME>",
+        "user": "<ACA_MI_DISPLAY_NAME>",       
+  },
+"learn": true
+```
+
+Test MCP server in AI Foundry Playground using natural language queries:
+
+```
+List all tables in my PostgreSQL database
+```
+
+```
+Show me the latest 10 records from the orders table
+```
+
+```
+What's the schema of the customers table?
+```
 
 **Via AI Foundry SDK:**
 
@@ -77,29 +108,27 @@ In your SDK code, add the following MCP config to test
 ``` python
 mcp_tool_config = {
     "type": "mcp",
-    "server_url": mcp_server_url,
-    "server_label": mcp_server_label,
+    "server_url": <mcp_server_url>,
+    "server_label": <mcp_server_label>,
     "server_authentication": {
         "type": "connection",
-        "connection_name": connection_name,
+        "connection_name": <connection_name>,
     }
 }
 
 mcp_tool_resources = {
     "mcp": [
         {
-            "server_label": mcp_server_label,
+            "server_label": <mcp_server_label>,
             "require_approval": "never"
         }
     ]
 }
 ```
 
-There is a smaple in `client\agents_mcp_sample.py`
+[Full SDK sample](client/agents_mcp_sample.py) in the the client folder 
 
-
-
-## Setting Up with Azure AI Foundry
+## Detailed Setup
 
 ### Step 1: Verify PostgreSQL Connection
 
@@ -174,10 +203,11 @@ SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
 
 Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
-### Step 4a: Create AI Foundry Connection
+## Setting Up with Azure AI Foundry
+### Step 1: Create AI Foundry Connection [TBD]
 Use the REST API to create a connections
 
-[!INFO] Only works in UAE North Region
+>[!IMPORTANT] Only works in UAE North Region
 
 ```bash
 PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscriptionID }}/resourcegroups/{{ _.resourceGroup }}/providers/Microsoft.CognitiveServices/accounts/{{ _.account }}/projects/{{ _.project }}/connections/{{ _.connectionName }}?api-version=2025-04-01-preview
@@ -204,7 +234,14 @@ PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscript
 }
 ```
 
-### Step 4b: (Client) Configure AI Foundry Connection
+OR
+
+In AI Foundry , go to `/build/tools -> connect a tool -> custom tab -> MCP and you can select "project managed identity" `
+
+![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+
+
+### Step 2: (Client) Configure AI Foundry Connection
 
 Assign the correct permissions to AI Foundry connection.
 
@@ -239,66 +276,67 @@ The script will output properties of the AI Foundry resource and connection that
 
 </details>
 
-### Step 5: Test in AI Foundry
+### Step 3: Test in AI Foundry
 
 Test your MCP server connection in AI Foundry using natural language queries:
 
 ```
 List all tables in my PostgreSQL database
-
+```
+```
 Show me the latest 10 records from the orders table
-
+```
+```
 What's the schema of the customers table?
 ```
 
 > **Note**: The MCP server provides secure access to PostgreSQL data through conversational AI interfaces.
 
-## Setting up with VS Code Integration
-
-You can also use the Azure Postgres MCP server with VSCode. It will use your Azure Credentials to log in from VSCode.
-
-Create `.vscode/mcp.json`:
-```json
-{
-  "servers": {
-    "azure-postgres-mcp": {
-      "type": "http",
-      "url": "https://your-mcp-server.azurecontainerapps.io"  // From deployment output
-    }
-  }
-}
-```
 
 ## Example Queries
 
 #### Basic Database Operations
 ```
 List all tables in the database
+```
+```
 Show the schema for the 'customers' table  
+```
+```
 Get the first 10 rows from the 'orders' table
+```
+```
 Count total records in the 'products' table
 ```
 
 #### Data Analysis
 ```
 Find customers who placed orders in the last 30 days
-
+```
+```
 Show me the top 5 best-selling products by quantity
-
+```
+```
 Calculate average order value by customer segment
+```
+```
 Analyze sales trends by month for this year
 ```
 
 #### Schema Exploration
 ```
 What tables are available in this database?
-
+```
+```
 Describe the relationship between orders and customers tables
-
+```
+```
 Show me all foreign key constraints in the database
-
+```
+```
 Find tables that contain customer information
 ```
+
 
 ## Configuration
 
@@ -436,3 +474,10 @@ If you want to contribute to the Azure MCP server wich includes teh Azure Postgr
 - **Health**: `GET /health` endpoint for server status
 - **Issues**: GitHub Issues with logs and configuration details
 - **Monitoring**: Azure Container Apps logs and Application Insights
+
+## Troubleshooting
+
+MCP not reading  tables that exist.
+```
+GRANT SELECT ON my_table TO "azure-mcp-postgres-server";
+```

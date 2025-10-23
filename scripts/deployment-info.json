@@ -13,3 +13,15 @@
   "POSTGRES_SERVER_NAME": "diskannga",
   "LOCATION": "eastus2"
 }
+
+
+"parameters":      
+  {
+        "database": "<DATABASE_NAME>",
+        "resource-group": "<RESOURCE_GROUP>",
+        "server": "<SERVER_NAME>",
+        "subscription": "<SUBSCRIPTION_ID>",
+        "table": "<TABLE_NAME>",
+        "user": "azure-mcp-postgres-server",       
+  },
+"learn": true
