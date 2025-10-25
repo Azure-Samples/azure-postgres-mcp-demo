@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "entraAppDisplayName": {
+      "value": "Azure MCP Postgres Server API"
+    },
+    "acaName": {
+      "value": "azure-mcp-postgres-server"
+    },
+    "acaRoleId": {
+      "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+    },
+    "postgresResourceId": {
+      "value": "/subscriptions/4d042dc6-fe17-4698-a23f-ec6a8d1e98f4/resourceGroups/SSS3PT_anuchan-mcp15ccd186/providers/Microsoft.DBforPostgreSQL/flexibleServers/anuchan321"
+    },
+    "aifProjectResourceId": {
+      "value": "/subscriptions/4d042dc6-fe17-4698-a23f-ec6a8d1e98f4/resourceGroups/SSS3PT_anuchan-mcp15ccd188/providers/Microsoft.CognitiveServices/accounts/ai-foundry-uae/projects/aifminoregression"
+    }
+  }
+}
