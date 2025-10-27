@@ -8,7 +8,7 @@ export AZURE_MCP_INCLUDE_PRODUCTION_CREDENTIALS="${AZURE_MCP_INCLUDE_PRODUCTION_
 export ALLOW_INSECURE_EXTERNAL_BINDING="${ALLOW_INSECURE_EXTERNAL_BINDING:-true}"
 
 echo "[entrypoint] Starting Azure Mcp Server on ${AZMCP_URL} with namespace: postgres"
-AZURE_TOKEN_CREDENTIALS=managedidentitycredential ASPNETCORE_URLS="${AZMCP_URL}" /opt/azmcp/azmcp server start --enable-insecure-transports --namespace postgres &
+AZURE_TOKEN_CREDENTIALS=managedidentitycredential ASPNETCORE_URLS="${AZMCP_URL}" /opt/azmcp/azmcp server start --enable-insecure-transports --namespace postgres --mode all &
 AZMCP_PID=$!
 
 echo "[entrypoint] Starting Proxy Mcp Server on ${PROXY_URL}"
