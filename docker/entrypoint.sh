@@ -7,6 +7,10 @@ PROXY_URL="${PROXY_URL:-http://0.0.0.0:8080}"
 export AZURE_MCP_INCLUDE_PRODUCTION_CREDENTIALS="${AZURE_MCP_INCLUDE_PRODUCTION_CREDENTIALS:-true}"
 export ALLOW_INSECURE_EXTERNAL_BINDING="${ALLOW_INSECURE_EXTERNAL_BINDING:-true}"
 
+if [ -n "${APPLICATIONINSIGHTS_CONNECTION_STRING:-}" ] && [ "${AZURE_MCP_COLLECT_TELEMETRY:-}" = "true" ]; then
+    echo "[entrypoint] Application Insights telemetry enabled with connection string"
+fi
+
 echo "[entrypoint] Starting Azure Mcp Server on ${AZMCP_URL} with namespace: postgres"
 AZURE_TOKEN_CREDENTIALS=managedidentitycredential ASPNETCORE_URLS="${AZMCP_URL}" /opt/azmcp/azmcp server start --enable-insecure-transports --namespace postgres --mode all &
 AZMCP_PID=$!

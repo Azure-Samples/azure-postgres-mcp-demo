@@ -19,6 +19,9 @@
     },
     "aifProjectResourceId": {
       "value": "/subscriptions/4d042dc6-fe17-4698-a23f-ec6a8d1e98f4/resourceGroups/SSS3PT_anuchan-mcp15ccd188/providers/Microsoft.CognitiveServices/accounts/ai-foundry-uae/projects/aifminoregression"
+    },
+    "appInsightsConnectionString": {
+      "value": "DISABLED"
     }
   }
 }

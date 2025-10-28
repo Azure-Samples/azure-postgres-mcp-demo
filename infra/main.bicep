@@ -16,9 +16,24 @@ param postgresResourceId string
 @description('AI Foundry project resource ID (optional - only needed if assigning Entra App role to AIF project MI)')
 param aifProjectResourceId string
 
-var entraAppUniqueName = '${replace(toLower(entraAppDisplayName), ' ', '-')}-${uniqueString(deployment().name, resourceGroup().id)}'
+@description('Application Insights connection string. Use "DISABLED" to disable telemetry, or provide existing connection string. If omitted, new App Insights will be created.')
+param appInsightsConnectionString string = ''
+
+// Deploy Application Insights if appInsightsConnectionString is empty and not DISABLED
+var appInsightsName = '${acaName}-insights'
+//
+module appInsights 'modules/application-insights.bicep' = {
+  name: 'application-insights-deployment'
+  params: {
+    appInsightsConnectionString: appInsightsConnectionString
+    name: appInsightsName
+    location: location
+  }
+}
 
 // Deploy Entra App
+var entraAppUniqueName = '${replace(toLower(entraAppDisplayName), ' ', '-')}-${uniqueString(deployment().name, resourceGroup().id)}'
+//
 module entraApp 'modules/entra-app.bicep' = {
   name: 'entra-app-deployment'
   params: {
@@ -33,6 +48,8 @@ module acaInfrastructure 'modules/aca-infrastructure.bicep' = {
   params: {
     name: acaName
     location: location
+    appInsightsConnectionString: appInsights.outputs.connectionString
+    azureMcpCollectTelemetry: string(!empty(appInsights.outputs.connectionString))
   }
 }
 
@@ -76,3 +93,8 @@ output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
 output CONTAINER_APP_URL string = acaInfrastructure.outputs.containerAppUrl
 output CONTAINER_APP_PRINCIPAL_ID string = acaInfrastructure.outputs.containerAppPrincipalId
 output AZURE_CONTAINER_APP_ENVIRONMENT_ID string = acaInfrastructure.outputs.containerAppEnvironmentId
+
+// Application Insights outputs
+output APPLICATION_INSIGHTS_NAME string = appInsightsName
+output APPLICATION_INSIGHTS_CONNECTION_STRING string = appInsights.outputs.connectionString
+output AZURE_MCP_COLLECT_TELEMETRY string = string(!empty(appInsights.outputs.connectionString))

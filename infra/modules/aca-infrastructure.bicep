@@ -25,6 +25,12 @@ param minReplicas int = 1
 @description('Maximum number of replicas')
 param maxReplicas int = 3
 
+@description('Application Insights connection string')
+param appInsightsConnectionString string
+
+@description('Whether to collect telemetry')
+param azureMcpCollectTelemetry string
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
   location: location
@@ -88,7 +94,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json(cpuCores)
             memory: memorySize
           }
-          env: [
+          env: concat([
             {
               name: 'ASPNETCORE_ENVIRONMENT'
               value: 'Production'
@@ -105,7 +111,16 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'ALLOW_INSECURE_EXTERNAL_BINDING'
               value: 'true'
             }
-          ]
+            {
+              name: 'AZURE_MCP_COLLECT_TELEMETRY'
+              value: azureMcpCollectTelemetry
+            }
+          ], !empty(appInsightsConnectionString) ? [
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: appInsightsConnectionString
+            }
+          ] : [])
         }
       ]
       scale: {
