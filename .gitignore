@@ -495,3 +495,7 @@ main.json
 # Log files
 *.log
 azd-deployment-info.json
+client/test123/
+test
+server/src/AzMcpPostgresServer.csproj
+server/src/appsettings.json

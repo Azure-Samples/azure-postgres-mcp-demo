@@ -9,7 +9,6 @@
 * Secure PostgreSQL database access using ACA Managed Identity
 * Support for Azure Database for PostgreSQL Flexible Server with Entra ID authentication
 * Identity separation with separate managed identities for client and server
-* Web-based MCP client for testing (`mcp-client.html`)
 * Automated deployment scripts for Azure Container Apps and Container Instance
 * Docker containerization with optimized Dockerfile
 * JWT Bearer authentication with Microsoft Identity Web integration

@@ -15,13 +15,14 @@
       "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
     },
     "postgresResourceId": {
-      "value": "/subscriptions/4d042dc6-fe17-4698-a23f-ec6a8d1e98f4/resourceGroups/SSS3PT_anuchan-mcp15ccd186/providers/Microsoft.DBforPostgreSQL/flexibleServers/anuchan321"
+      "value": "${POSTGRES_RESOURCE_ID}"
     },
     "aifProjectResourceId": {
-      "value": "/subscriptions/4d042dc6-fe17-4698-a23f-ec6a8d1e98f4/resourceGroups/SSS3PT_anuchan-mcp15ccd188/providers/Microsoft.CognitiveServices/accounts/ai-foundry-uae/projects/aifminoregression"
+      "value": "${AIF_PROJECT_RESOURCE_ID}"
     },
     "appInsightsConnectionString": {
       "value": "DISABLED"
     }
   }
 }
+

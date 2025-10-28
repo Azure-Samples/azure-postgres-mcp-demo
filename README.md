@@ -11,7 +11,7 @@ This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en
 - 🔐 **Enterprise Security** - Azure managed identity and Entra ID authentication  
 - 🐳 **Production Ready** - Containerized deployment to Azure Container Apps
 - 🎯 **Natural Language** - Query databases using conversational AI
-- 🚀 **Easy Deployment** - One-click Azure deployment with complete infrastructure **[Coming Soon]**
+- 🚀 **Easy Deployment** - One-click Azure deployment with complete infrastructure
 
 ## Components
 
@@ -31,24 +31,38 @@ The system consists of three main components:
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)  
 - [PostgreSQL Client](https://www.postgresql.org/download/)  
 - [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview)
+- [Microsoft .NET](https://dotnet.microsoft.com/en-us/download)
 
 ## Quick Start
 
-### Deploy MCP Server via Azure Button (Recommended)
+### Deploy Azure Database for Postgres Self-Hosted MCP to Azure via azd up (Recommended)
 
-**Prerequisites Check**: Ensure you have an Azure PostgreSQL Flexible Server with Entra ID authentication enabled.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.deploy-all-resources.json)
-
-### Deploy to Azure via azd up
 Deploy the complete infrastructure with a single script:
 ```bash
+
+# Set the environment variables to match the Postgres DB you want to access
+azd env set POSTGRES_RESOURCE_ID "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
+
+# Set the environment variables to match the AI Foundry resource you want to use
+azd env set AIF_PROJECT_RESOURCE_ID "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
+
+# Then deploy
 azd up
 ```
 **What gets deployed:** Azure Container Apps, Managed Identity, Entra ID App Registration with full RBAC setup.
+![Screenshot of Azure Portal components](images/azure_portal_resources.png)
+
+#### Configure MCP server access to Postgres server.
+In `psql` terminal ([Instructions](#detailed-setup) to connect to Postgres with psql) :
+
+```sql
+SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
+```
+
+Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
 ### Deploy manually
-In case azd up or one click deploy failed. You can set up manually. In the [detailed Setup](#detailed-setup) sections
+In case `azd up` deployment failed. You can set up manually. In the [detailed Setup](#detailed-setup) sections
 
 ### 🌐 Test MCP server
 Test the MCP immediately using the web interface:
@@ -63,44 +77,50 @@ The UI allows you to:
 * View formatted JSON responses
 * Explore all MCP tools
 
-### Add Azure Postgres MCP URI to AI Foundry
+## Use Azure Postgres MCP in AI Foundry
 
 **Via Azure AI Foundry UI:**
 
-In AI Foundry , go to `/build/tools -> connect a tool -> custom tab -> MCP and you can select "project managed identity" `
+1. Navigate to your Azure AI Foundry project
+2. Go to **Build** → **Tools** → **Connect a tool** 
+3. Select the **Catalog** tab 
+4. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
+5. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+6. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
+> [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
+7. Create an Agent to use this new tool. ![Agent Instructions](images/agent_instructions_playground.png)
+    Give the agent instructions:
 
-![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+    ```
+    You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
+    "parameters":      
+      {
+            "database": "<DATABASE_NAME>",
+            "resource-group": "<RESOURCE_GROUP>",
+            "server": "<SERVER_NAME>",
+            "subscription": "<SUBSCRIPTION_ID>",
+            "table": "<TABLE_NAME>",
+            "user": "<ACA_MI_DISPLAY_NAME>",       
+      },
+    "learn": true
+    ```
 
-Give the agent instrucitons:
 
-```
-You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
-"parameters":      
-  {
-        "database": "<DATABASE_NAME>",
-        "resource-group": "<RESOURCE_GROUP>",
-        "server": "<SERVER_NAME>",
-        "subscription": "<SUBSCRIPTION_ID>",
-        "table": "<TABLE_NAME>",
-        "user": "<ACA_MI_DISPLAY_NAME>",       
-  },
-"learn": true
-```
+8. Test MCP server in AI Foundry Playground using natural language queries:
+    ```
+    List all tables in my PostgreSQL database
+    ```
 
-Test MCP server in AI Foundry Playground using natural language queries:
+    ```
+    Show me the latest 10 records from the orders table
+    ```
 
-```
-List all tables in my PostgreSQL database
-```
+    ```
+    What's the schema of the customers table?
+    ```
 
-```
-Show me the latest 10 records from the orders table
-```
-
-```
-What's the schema of the customers table?
-```
-
+> **Note**: The MCP server provides secure access to PostgreSQL data through conversational AI interfaces.
+> 
 **Via AI Foundry SDK:**
 
 In your SDK code, add the following MCP config to test
@@ -129,6 +149,9 @@ mcp_tool_resources = {
 [Full SDK sample](client/agents_mcp_sample.py) in the the client folder 
 
 ## Detailed Setup
+<details>
+<summary>Step-by-step Self-Hosted MCP setup</summary>
+
 
 ### Step 1: Verify PostgreSQL Connection
 
@@ -203,45 +226,19 @@ SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
 
 Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
-## Setting Up with Azure AI Foundry
-### Step 1: Create AI Foundry Connection [TBD]
-Use the REST API to create a connections
 
+## Setting Up with Azure AI Foundry
+### Step 1: Create AI Foundry Connection 
 >[!IMPORTANT] Only works in UAE North Region
 
-<details>
-<summary>Creating connection with REST API</summary>
-```bash
-PUT https://{{ _.region }}.management.azure.com:443/subscriptions/{{ _.subscriptionID }}/resourcegroups/{{ _.resourceGroup }}/providers/Microsoft.CognitiveServices/accounts/{{ _.account }}/projects/{{ _.project }}/connections/{{ _.connectionName }}?api-version=2025-04-01-preview
-{
-  "tags": null,
-  "location": null,
-  "name": "{connection-name}",
-  "type": "Microsoft.MachineLearningServices/workspaces/connections",
-  "properties": {
-    "authType": "ProjectManagedIdentity",
-    "group": "ServicesAndApps",
-    "category": "RemoteTool",
-    "expiryTime": null,
-    "target": "{ $MCP_SERVER_URI }",
-    "isSharedToAll": true,
-    "sharedUserList": [],
-  "audience": "{ $ENTRA_APP_CLIENT_ID }",
-    "Credentials": {
-    },
-    "metadata": {
-      "ApiType": "Azure"
-    }
-  }
-}
-```
-</details>
+Follow these steps in Azure AI Foundry:
 
-
-In AI Foundry , go to `/build/tools -> connect a tool -> custom tab -> MCP and you can select "project managed identity" `
-
-![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
-
+1. Navigate to your Azure AI Foundry project
+2. Go to **Build** → **Tools** → **Connect a tool** 
+3. Select the **Catalog** tab 
+4. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
+5. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+6. Enter your <entra-app-client-id> as the audience. This is value from the output of your `deployment-info.json` 
 
 ### Step 2: (Client) Configure AI Foundry Connection
 
@@ -278,22 +275,8 @@ The script will output properties of the AI Foundry resource and connection that
 
 </details>
 
-### Step 3: Test in AI Foundry
-
-Test your MCP server connection in AI Foundry Playground using natural language queries:
-
-```
-List all tables in my PostgreSQL database
-```
-```
-Show me the latest 10 records from the orders table
-```
-```
-What's the schema of the customers table?
-```
-
-> **Note**: The MCP server provides secure access to PostgreSQL data through conversational AI interfaces.
-
+You can now [test in AI Foundry](#Use-Azure-Postgres-MCP-in-AI-Foundry)
+</details>
 
 ## Example Queries
 
@@ -472,7 +455,7 @@ If you want to contribute to the Azure MCP server wich includes teh Azure Postgr
 
 ## Troubleshooting
 
-MCP not reading  tables that exist.
+MCP not reading tables that exist.
 ```
-GRANT SELECT ON my_table TO "azure-mcp-postgres-server";
+GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
 ```
