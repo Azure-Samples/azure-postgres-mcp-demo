@@ -18,12 +18,13 @@ infra:
 services:
   api:
     resourceName: ${CONTAINER_APP_NAME}
-    project: ./server/src
+    project: .
     host: containerapp
-    language: dotnet
+    language: docker
     docker:
       path: ./docker/Dockerfile
-      context: ./server/src
+      context: .
+      remoteBuild: false
       registry: ${CONTAINER_REGISTRY_LOGIN_SERVER}
 
 hooks:
