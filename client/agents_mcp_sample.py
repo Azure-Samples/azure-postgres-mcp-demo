@@ -19,7 +19,7 @@ model_deployment = os.getenv("MODEL_DEPLOYMENT_NAME")
 connection_name = os.getenv("CONNECTION_NAME")
 
 # Get MCP server configuration from environment variables
-mcp_server_url = os.environ.get("MCP_SERVER_URL", "https://azure-mcp-postgres-server.graysmoke-6ac73de2.eastus2.azurecontainerapps.io")
+mcp_server_url = os.environ.get("MCP_SERVER_URL", "")
 mcp_server_label = os.environ.get("MCP_SERVER_LABEL", "postgres")
 
 project_client = AIProjectClient(
@@ -55,18 +55,17 @@ with project_client:
     agent = agents_client.create_agent(
         model=os.environ["MODEL_DEPLOYMENT_NAME"],
         name="ignite-demo-agent-mcp",
-        #"command":"postgres_database_query"
-        instructions="""
+        instructions=f"""
         You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
-        "parameters":      
-        {
-                "database": "ignite_2025",
-                "resource-group": "abeomor",
-                "server": "diskannga",
-                "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
-                "table": "product_data_playground",
-                "user": "azure-mcp-postgres-server",       
-        },
+        "parameters":
+
+                "database": "{os.environ.get('POSTGRES_DATABASE','postgres')}",
+                "resource-group": "{os.environ.get('AZURE_RESOURCE_GROUP','')}",
+                "server": "{os.environ.get('POSTGRES_SERVER','')}",
+                "subscription": "{os.environ.get('AZURE_SUBSCRIPTION_ID','')}",
+                "table": "{os.environ.get('POSTGRES_TABLE','products')}",
+                "user": "{os.environ.get('POSTGRES_USER','')}",
+        
         "learn": true
         """,
         tools=[mcp_tool_config],
@@ -83,14 +82,14 @@ with project_client:
     """
     Can you list all the tables in the database?
     """,
-    """
-    Can you find info about AI in my database? From the documents table. I want to see the id and name.
+   f"""
+    Can you find info about in my database? From the {os.environ.get('POSTGRES_TABLE','products')} table. I want to see the id and name.
     """,
     """
     What tools are available, list them? Can you run a query on the Postgres database?
     """,
     """
-    Do a vector search for "Talks about AI" on my postgres database
+    Do a vector search for "Talks about products" on my postgres database
 
     this is a vector search example.
     SELECT id, name, embedding <=> azure_openai.create_embeddings(
