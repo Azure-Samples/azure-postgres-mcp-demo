@@ -202,5 +202,5 @@ with project_client:
 
     # Clean-up and delete the agent once the run is finished.
     # NOTE: Comment out this line if you plan to reuse the agent later.
-    # agents_client.delete_agent(agent.id)
-    # print("Deleted agent")
+    agents_client.delete_agent(agent.id)
+    print("Deleted agent")

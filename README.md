@@ -53,42 +53,44 @@ azd up
 ![Screenshot of Azure Portal components](images/azure_portal_resources.png)
 
 #### Configure MCP server access to Postgres server.
-In `psql` terminal ([Instructions](#detailed-setup) to connect to Postgres with psql) :
+1. In `psql` terminal ([Instructions](#detailed-setup) to connect to Postgres with psql) :
 
-```sql
-SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
-```
+    ```sql
+    SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
+    ```
 
-Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
+    Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
+2. *(Optional)* If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
+   
+   ```sql
+   GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
+   ```
+
+    For all tables
+    ```sql
+    -- Grant SELECT on all existing tables
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<ACA_MI_DISPLAY_NAME>";
+
+    -- Grant SELECT on all future tables
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<ACA_MI_DISPLAY_NAME>";
+    ```
 ### Deploy manually
 In case `azd up` deployment failed. You can set up manually. In the [detailed Setup](#detailed-setup) sections
-
-### 🌐 Test MCP server
-Test the MCP immediately using the web interface:
-
-**Deployed UI:** [URL]
-
-The UI allows you to:
-
-* Check server health status
-* List available MCP tools
-* Test tools with interactive parameter input
-* View formatted JSON responses
-* Explore all MCP tools
 
 ## Use Azure Postgres MCP in AI Foundry
 
 **Via Azure AI Foundry UI:**
 
 1. Navigate to your Azure AI Foundry project
-2. Go to **Build** → **Tools** → **Connect a tool** 
-3. Select the **Catalog** tab 
-4. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
-5. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
-6. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
+2. Go to **Build** → **Create agent**  
+3. Select the **+ Add** in the tools section![Connect via Entra](images/add_tool_ai_foundry.png)
+4. Select the **Catalog** tab 
+5. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
+6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
 > [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
-7. Create an Agent to use this new tool. ![Agent Instructions](images/agent_instructions_playground.png)
+8. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
     Give the agent instructions:
 
     ```
@@ -218,14 +220,28 @@ The script creates a `deployment-info.json` file with all the deployment details
 
 ### Step 3: Configure PostgreSQL Database Access
 
-In `psql` terminal (from Step 1):
+1. In `psql` terminal (from Step 1):
 
-```sql
-SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
-```
+    ```sql
+    SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
+    ```
 
-Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
+    Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
+2. *(Optional)* If you add new table to your database, you will have to the MCP server permissions to the new tables.
+   
+   ```sql
+   GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
+   ```
+   
+    For all tables
+    ```sql
+    -- Grant SELECT on all existing tables
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<ACA_MI_DISPLAY_NAME>";
+
+    -- Grant SELECT on all future tables
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<ACA_MI_DISPLAY_NAME>";
+    ```
 
 ## Setting Up with Azure AI Foundry
 ### Step 1: Create AI Foundry Connection 
@@ -239,6 +255,15 @@ Follow these steps in Azure AI Foundry:
 4. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
 5. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
 6. Enter your <entra-app-client-id> as the audience. This is value from the output of your `deployment-info.json` 
+
+1. Navigate to your Azure AI Foundry project
+2. Go to **Build** → **Create agent**  
+3. Select the **+ Add** in the tools section![Connect via Entra](images/add_tool_ai_foundry.png)
+4. Select the **Catalog** tab 
+5. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres](images/use_in_ai_foundry_ui.png)
+6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
+> [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
 
 ### Step 2: (Client) Configure AI Foundry Connection
 

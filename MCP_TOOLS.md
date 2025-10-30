@@ -6,17 +6,19 @@ This document provides examples of available MCP tools for Azure Postgres, their
 
 ## Table of Contents
 
-- [Database](#database)
-  - [List databases](#database-list-databases)
-  - [Execute database query](#database-execute-database-query)
-- [Table](#table)
-  - [List tables](#table-list-tables)
-  - [Get table schema](#table-get-table-schema)
-- [Server](#server)
-  - [List servers](#server-list-servers)
-  - [Get server configuration](#server-get-server-configuration)
-  - [Get server parameter](#server-get-server-parameter)
-  - [Set server parameter](#server-set-server-parameter)
+- [Azure Postgres MCP Tools Documentation](#azure-postgres-mcp-tools-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [Database](#database)
+    - [Database: list databases](#database-list-databases)
+    - [Database: execute database query](#database-execute-database-query)
+  - [Table](#table)
+    - [Table: list tables](#table-list-tables)
+    - [Table: get table schema](#table-get-table-schema)
+  - [Server](#server)
+    - [Server: list servers](#server-list-servers)
+    - [Server: get server configuration](#server-get-server-configuration)
+    - [Server: get server parameter](#server-get-server-parameter)
+    - [Server: set server parameter](#server-set-server-parameter)
 
 ---
 
@@ -36,9 +38,9 @@ Notes: the caller's role and Azure RBAC may limit results; subscription and reso
   "intent": "list all databases with pg_diskann extension installed for user",
   "parameters": {
     "user": "mcp-identity",
-    "resource-group": "abeomor",
-    "server": "diskannga",
-    "subscription": "OrcasPM"
+    "resource-group": "<your-resource-group>",
+    "server": "<your-postgres-server>",
+    "subscription": "<your-subscription>"
   }
 }
 ```
@@ -49,9 +51,9 @@ List all databases on my postgres server
 {
   "command": "postgres_list_databases",
   "user": "mcp-identity",
-  "resource-group": "abeomor",
-  "server": "diskannga",
-  "subscription": "OrcasPM"
+  "resource-group": "<your-resource-group>",
+  "server": "<your-postgres-server>",
+  "subscription": "<your-subscription>"
 }
 ```
 
@@ -65,12 +67,10 @@ List all databases on my postgres server
       "azure_maintenance",
       "postgres",
       "azure_sys",
-      "build_2025",
-      "nlweb_db",
-      "cases",
-      "cps",
-      "copilot_test",
-      "nlweb_db_2"
+      "sample_database",
+      "app_db",
+      "analytics_db",
+      "test_db"
     ]
   },
   "duration": 0
@@ -79,7 +79,7 @@ List all databases on my postgres server
 
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -90,8 +90,8 @@ List all databases on my postgres server
 Description
 - Executes an arbitrary SQL query against a specified database and returns the raw query results. This is the general-purpose tool for checks, diagnostics, running vector search SQL, or validating extensions.
 
-Caveats #1: queries that select custom vector types (for example `public.vector` or the `vector` type from `pgvector`) may not deserialize in the MCP transport; in those cases exclude the vector column or cast it to text. 
-Caveats #2: Ensure the caller has appropriate permissions and RLS policies won't block the query.
+**Caveat #1:** Queries that select custom vector types (for example `public.vector` or the `vector` type from `pgvector`) may not deserialize in the MCP transport; in those cases exclude the vector column or cast it to text. 
+
 
 **Tool Input**
 ```json
@@ -99,11 +99,11 @@ Caveats #2: Ensure the caller has appropriate permissions and RLS policies won't
   "command": "postgres_database_query",
   "intent": "check if pg_diskann extension is installed in database azure_maintenance",
   "parameters": {
-    "database": "nlweb_db_2",
+    "database": "<your-database>",
     "query": "SELECT extname FROM pg_extension WHERE extname = 'pg_diskann'",
-    "resource-group": "abeomor",
-    "server": "diskannga",
-    "subscription": "OrcasPM",
+    "resource-group": "<your-resource-group>",
+    "server": "<your-postgres-server>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -127,10 +127,10 @@ Do a vector search for "Talks about AI" on my postgres database
 
 {
 "command";"postgres_database_query"
-"database": "nlweb_db_2",
-"resource-group": "abeomor",
-"server": "diskannga",
-"subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+"database": "<your-database>",
+"resource-group": "<your-resource-group>",
+"server": "<your-postgres-server>",
+"subscription": "<your-subscription-id>",
 "table": "documents",
 "user": "mcp-identity"
 }
@@ -147,24 +147,27 @@ LIMIT 10;
 
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 **Permissions**
 You can active READ-ONLY operation with RLS policies on Postgres to stop agent from write malicious code.
-![Postgres agent permission not granted](postgres_agent_permission_no_granted.png)
 
 Example: 
-Write a random row to the documents_no_vector table in my Postgres Database
+```
+Write a random row to a table in my Postgres Database
 
 {
 "command";"postgres_database_query"
-"database": "nlweb_db_2",
-"resource-group": "abeomor",
-"server": "diskannga",
-"subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+"database": "<your-database>",
+"resource-group": "<your-resource-group>",
+"server": "<your-postgres-server>",
+"subscription": "<your-subscription-id>",
 "table": "documents_no_vector",
 "user": "mcp-identity"
 }
+```
+
+Will not run
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -185,10 +188,10 @@ Notes: results are filtered by the caller's database privileges; tables hidden b
   "command": "postgres_list_tables",
   "intent": "list all tables in the specified database",
   "parameters": {
-    "database": "nlweb_db_2",
-    "resource-group": "abeomor",
-    "server": "diskannga",
-    "subscription": "OrcasPM",
+    "database": "<your-database>",
+    "resource-group": "<your-resource-group>",
+    "server": "<your-postgres-server>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -207,20 +210,20 @@ Notes: results are filtered by the caller's database privileges; tables hidden b
 ```
 **Example Prompt**
 ```
-Show me all tables in the database nlweb_db_2
+Show me all tables in the database <your-database>
 
 {
   "command": "postgres_list_tables",
-  "database": "nlweb_db_2",
-  "resource-group": "abeomor",
-  "server": "diskannga",
-  "subscription": "OrcasPM",
+  "database": "<your-database>",
+  "resource-group": "<your-resource-group>",
+  "server": "<your-postgres-server>",
+  "subscription": "<your-subscription>",
   "user": "mcp-identity"
 }
 ```
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -237,13 +240,13 @@ Caveats: managed vector types or provider-specific types may be reported as USER
 ```json
 {
   "command": "postgres_get_table_schema",
-  "intent": "retrieve schema for the 'documents' table in nlweb_db_2",
+  "intent": "retrieve schema for the 'documents' table in sample database",
   "parameters": {
-    "database": "nlweb_db_2",
+    "database": "<your-database>",
     "table": "documents",
-    "resource-group": "abeomor",
-    "server": "diskannga",
-    "subscription": "OrcasPM",
+    "resource-group": "<your-resource-group>",
+    "server": "<your-postgres-server>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -267,30 +270,27 @@ Caveats: managed vector types or provider-specific types may be reported as USER
 ```
 **Example Prompt**
 ```
-Get the schema for the documents table in nlweb_db_2
+Get the schema for the documents table in <your-database>
 
 {
   "command": "postgres_get_table_schema",
-  "database": "nlweb_db_2",
+  "database": "<your-database>",
   "table": "documents",
-  "resource-group": "abeomor",
-  "server": "diskannga",
-  "subscription": "OrcasPM",
+  "resource-group": "<your-resource-group>",
+  "server": "<your-postgres-server>",
+  "subscription": "<your-subscription>",
   "user": "mcp-identity"
 }
 ```
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
 ---
 
 ## Server
-
-## TODO-1: subscription has to be the ID and not the user friendly name
-## TODO-2: memory spikes when doing server operations
 
 ### Server: list servers
 
@@ -306,8 +306,8 @@ Notes: depending on the Azure API and credentials the subscription parameter sho
   "intent": "list all PostgreSQL servers available to the user",
   "parameters": {
     "user": "mcp-identity",
-    "subscription": "OrcasPM",
-    "resource-group": "abeomor"
+    "subscription": "<your-subscription>",
+    "resource-group": "<your-resource-group>"
   }
 }
 ```
@@ -318,7 +318,7 @@ Notes: depending on the Azure API and credentials the subscription parameter sho
   "status": 200,
   "message": "Success",
   "results": {
-    "Servers": ["diskannga", "pgserver01", "analytics-prod"]
+    "Servers": ["sample-postgres-server", "pgserver01", "analytics-prod"]
   },
   "duration": 0
 }
@@ -330,13 +330,13 @@ List all PostgreSQL servers I have access to
 {
   "command": "postgres_list_servers",
   "user": "mcp-identity",
-  "resource-group": "abeomor",
-  "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30"
+  "resource-group": "<your-resource-group>",
+  "subscription": "<your-subscription-id>"
 }
 ```
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -351,11 +351,11 @@ Description
 ```json
 {
   "command": "postgres_get_server_config",
-  "intent": "retrieve configuration settings for server 'diskannga'",
+  "intent": "retrieve configuration settings for server",
   "parameters": {
-    "server": "diskannga",
-    "resource-group": "abeomor",
-    "subscription": "OrcasPM",
+    "server": "<your-postgres-server>",
+    "resource-group": "<your-resource-group>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -378,19 +378,19 @@ Description
 ```
 **Example Prompt**
 ```
-Show me the configuration for server diskannga
+Show me the configuration for server <your-postgres-server>
 
 {
   "command": "postgres_get_server_config",
-  "server": "diskannga",
-  "resource-group": "abeomor",
-  "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+  "server": "<your-postgres-server>",
+  "resource-group": "<your-resource-group>",
+  "subscription": "<your-subscription-id>",
   "user": "mcp-identity"
 }
 ```
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -407,12 +407,12 @@ Notes: reading parameters is read-only but may require elevated privileges depen
 ```json
 {
   "command": "postgres_get_server_parameter",
-  "intent": "get value of 'work_mem' parameter for server 'diskannga'",
+  "intent": "get value of 'work_mem' parameter for server",
   "parameters": {
-    "server": "diskannga",
+    "server": "<your-postgres-server>",
     "parameter": "work_mem",
-    "resource-group": "abeomor",
-    "subscription": "OrcasPM",
+    "resource-group": "<your-resource-group>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -434,20 +434,20 @@ Notes: reading parameters is read-only but may require elevated privileges depen
 ```
 **Example Prompt**
 ```
-Get the value of the work_mem parameter for server diskannga
+Get the value of the work_mem parameter for server <your-postgres-server>
 
 {
   "command": "postgres_get_server_parameter",
-  "server": "diskannga",
+  "server": "<your-postgres-server>",
   "parameter": "work_mem",
-  "resource-group": "abeomor",
-  "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+  "resource-group": "<your-resource-group>",
+  "subscription": "<your-subscription-id>",
   "user": "mcp-identity"
 }
 ```
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
 
@@ -465,13 +465,13 @@ Warnings: changing server parameters can impact running workloads. Require expli
 ```json
 {
   "command": "postgres_set_server_parameter",
-  "intent": "set 'work_mem' parameter to 8MB for server 'diskannga'",
+  "intent": "set 'work_mem' parameter to 8MB for server",
   "parameters": {
-    "server": "diskannga",
+    "server": "<your-postgres-server>",
     "parameter": "work_mem",
     "value": "8MB",
-    "resource-group": "abeomor",
-    "subscription": "OrcasPM",
+    "resource-group": "<your-resource-group>",
+    "subscription": "<your-subscription>",
     "user": "mcp-identity"
   }
 }
@@ -494,41 +494,24 @@ Warnings: changing server parameters can impact running workloads. Require expli
 ```
 **Example Prompt**
 ```
-Set the work_mem parameter to 8MB for server diskannga
+Set the work_mem parameter to 8MB for server <your-postgres-server>
 
 {
   "command": "postgres_set_server_parameter",
-  "server": "diskannga",
+  "server": "<your-postgres-server>",
   "parameter": "work_mem",
   "value": "8MB",
-  "resource-group": "abeomor",
-  "subscription": "5c5037e5-d3f1-4e7b-b3a9-f6bf94902b30",
+  "resource-group": "<your-resource-group>",
+  "subscription": "<your-subscription-id>",
   "user": "mcp-identity"
 }
 ```
 
 **Permissions**
-You can active READ-ONLY operation Azure RBC.
-![Azure agent permission not granted](azure_agent_permission_no_granted.png)
+You can active READ-ONLY operation Azure RBAC.
+
 
 **Remote MCP Server URL**  
-`LOCAL, generate when user deploys`
+`Auto generate when user deploys`
 
 [🔝 Back to Top](#table-of-contents)
-
----
-
-## Errors
-```json
-{
-  "status":401,
-  "message":"Authentication failed. Please run \u0027az login\u0027 to sign in to Azure. Details: The ChainedTokenCredential failed due to an unhandled exception: InteractiveBrowserCredential authentication failed: Persistence check failed. Inspect inner exception for details. To mitigate this issue, please refer to the troubleshooting guidelines here at https://aka.ms/azmcp/troubleshooting.",
-  "results":
-    {
-      "message":"The ChainedTokenCredential failed due to an unhandled exception: InteractiveBrowserCredential authentication failed: Persistence check failed. Inspect inner exception for details",
-      "stackTrace":null,
-      "type":"AuthenticationFailedException"
-      },
-  "duration":0
-  }
-```
