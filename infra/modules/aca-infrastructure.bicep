@@ -31,6 +31,12 @@ param appInsightsConnectionString string
 @description('Whether to collect telemetry')
 param azureMcpCollectTelemetry string
 
+@description('Azure AD Tenant ID')
+param azureAdTenantId string
+
+@description('Azure AD Client ID')
+param azureAdClientId string
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
   location: location
@@ -115,6 +121,14 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'AZURE_MCP_COLLECT_TELEMETRY'
               value: azureMcpCollectTelemetry
             }
+            {
+              name: 'AzureAd__TenantId'
+              value: azureAdTenantId
+            }
+            {
+              name: 'AzureAd__ClientId'
+              value: azureAdClientId
+            }
           ], !empty(appInsightsConnectionString) ? [
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -141,13 +155,12 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-output resourceGroupName string = resourceGroup().name
-output containerAppUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
-output containerAppEnvironmentId string = containerAppsEnvironment.id
-output containerAppPrincipalId string = containerApp.identity.principalId
-output containerAppName string = containerApp.name
-output containerAppResourceId string = containerApp.id
-
 output containerRegistryLoginServer string = containerRegistry.properties.loginServer
 output containerRegistryName string = containerRegistry.name
+
+output containerAppResourceId string = containerApp.id
+output containerAppUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
+output containerAppName string = containerApp.name
+output containerAppPrincipalId string = containerApp.identity.principalId
+output containerAppEnvironmentId string = containerAppsEnvironment.id
 

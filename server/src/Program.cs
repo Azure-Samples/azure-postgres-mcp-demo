@@ -13,17 +13,18 @@ JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 var azureAd = builder.Configuration.GetSection("AzureAd");
 var tenantId = azureAd["TenantId"]!;
 var clientId = azureAd["ClientId"]!;
+var authority = $"https://login.microsoftonline.com/{tenantId}/v2.0";
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = $"https://login.microsoftonline.com/{tenantId}/v2.0";
+        options.Authority = authority;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = $"https://login.microsoftonline.com/{tenantId}/v2.0",
+            ValidIssuer = authority,
 
             ValidateAudience = true,
             ValidAudiences = new[] { clientId, $"api://{clientId}" },

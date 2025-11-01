@@ -50,6 +50,8 @@ module acaInfrastructure 'modules/aca-infrastructure.bicep' = {
     location: location
     appInsightsConnectionString: appInsights.outputs.connectionString
     azureMcpCollectTelemetry: string(!empty(appInsights.outputs.connectionString))
+    azureAdTenantId: tenant().tenantId
+    azureAdClientId: entraApp.outputs.entraAppClientId
   }
 }
 
@@ -74,9 +76,10 @@ module aifRoleAssignment './modules/aif-role-assignment-entraapp.bicep' = {
 }
 
 // Outputs for azd and other consumers
-output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_SUBSCRIPTION_ID string = subscription().subscriptionId
+output AZURE_RESOURCE_GROUP string = resourceGroup().name
+output AZURE_LOCATION string = location
 
 // Entra App outputs
 output ENTRA_APP_CLIENT_ID string = entraApp.outputs.entraAppClientId
@@ -86,11 +89,10 @@ output ENTRA_APP_ROLE_ID string = entraApp.outputs.entraAppRoleId
 output ENTRA_APP_IDENTIFIER_URI string = entraApp.outputs.entraAppIdentifierUri
 
 // ACA Infrastructure outputs
-output RESOURCE_GROUP_NAME string = acaInfrastructure.outputs.resourceGroupName
 output CONTAINER_REGISTRY_LOGIN_SERVER string = acaInfrastructure.outputs.containerRegistryLoginServer
 output CONTAINER_REGISTRY_NAME string = acaInfrastructure.outputs.containerRegistryName
-output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
 output CONTAINER_APP_URL string = acaInfrastructure.outputs.containerAppUrl
+output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
 output CONTAINER_APP_PRINCIPAL_ID string = acaInfrastructure.outputs.containerAppPrincipalId
 output AZURE_CONTAINER_APP_ENVIRONMENT_ID string = acaInfrastructure.outputs.containerAppEnvironmentId
 

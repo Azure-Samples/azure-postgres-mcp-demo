@@ -8,12 +8,9 @@ infra:
   provider: bicep
   path: ./infra
   outputs:
-    AZURE_RESOURCE_GROUP: RESOURCE_GROUP_NAME
+    AZURE_RESOURCE_GROUP: AZURE_RESOURCE_GROUP
     CONTAINER_REGISTRY_LOGIN_SERVER: CONTAINER_REGISTRY_LOGIN_SERVER
     CONTAINER_APP_NAME: CONTAINER_APP_NAME
-    AZURE_CONTAINER_APPS_ENVIRONMENT_ID: AZURE_CONTAINER_APP_ENVIRONMENT_ID
-    APPLICATION_INSIGHTS_CONNECTION_STRING: APPLICATION_INSIGHTS_CONNECTION_STRING
-    AZURE_MCP_COLLECT_TELEMETRY: AZURE_MCP_COLLECT_TELEMETRY
 
 services:
   api:
@@ -26,6 +23,8 @@ services:
       context: .
       remoteBuild: false
       registry: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+    dependsOn:
+      - infra
 
 hooks:
   preprovision:
@@ -37,8 +36,6 @@ hooks:
     shell: sh  
     run: |
       echo "Success: Infrastructure provisioned"
-      echo "Updating 'Azure MCP Postgres Server' application's 'appsettings.json' with Entra App configuration..."
-      ./infra/update-appsettings.sh
     continueOnError: false
 
   predeploy:
