@@ -101,13 +101,13 @@ azd up
 
 1. Navigate to your Azure AI Foundry project
 2. Go to **Build** → **Create agent**  
-3. Select the **+ Add** in the tools section![Connect via Entra](images/add_tool_ai_foundry.png)
+3. Select the **+ Add** in the tools section
 4. Select the **Custom** tab 
 5. Choose **Model Context Protocol** as the tool and click **Create** ![Find MCP](images/use_in_ai_foundry_ui_mcp_connect.png)
 6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
 7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
 > [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
-8. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
+1. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
     Give the agent instructions:
 
     ```
