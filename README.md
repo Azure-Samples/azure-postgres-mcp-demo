@@ -32,13 +32,24 @@ The system consists of three main components:
 - [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview)
 - [Microsoft .NET](https://dotnet.microsoft.com/en-us/download)
 
-## Quick Start
+## Quick start deployment
 
-### Deploy Azure Database for Postgres Self-Hosted MCP to Azure via azd up (Recommended)
+Deploy the complete Azure MCP PostgreSQL Server infrastructure by using Azure Developer CLI (azd):
 
-1. Go to the [main.parameters.json](/infra/main.parameters.json) file and update the `postgresResourceId` and `aifProjectResourceId` variables
+### Step 1: Deploy with azd up
+The fastest way to get started is by using the automated deployment script. 
 
-    a. Update the `postgresResourceId` variable to match the Postgres DB you want to access. 
+1. First, clone [the repo](https://github.com/Azure-Samples/azure-postgres-mcp-demo):
+
+    ```bash
+    # Clone the repository
+    git clone https://github.com/Azure-Samples/azure-mcp-postgresql-server
+    cd azure-mcp-postgresql-server
+    ```
+
+2. Before running the `azd up` command, you must go to the [main.parameters.json](/infra/main.parameters.json) file and update the `postgresResourceId` and `aifProjectResourceId` variables.
+
+    a. Update the [`postgresResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L17) variable to match the Postgres DB you want to access. 
     
     ```json
     "postgresResourceId": {
@@ -50,7 +61,7 @@ The system consists of three main components:
     ![Screenshot of Azure details page.](images/azure-postgres-details.png)
 
 
-    b. Update the `aifProjectResourceId` variable to match the AI Foundry resource you want to use
+    b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the AI Foundry resource you want to use
     ```json
         "aifProjectResourceId": {
         "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
@@ -61,16 +72,22 @@ The system consists of three main components:
     Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
-2. Deploy the complete infrastructure with a single script:
+1. Deploy the complete infrastructure with a single script:
    
     ```bash
     azd up
     ```
 
-**What gets deployed:** Azure Container Apps, Managed Identity, Entra ID App Registration with full RBAC setup.
+This deployment creates:
+- Azure Container Apps instance for the MCP server
+- Managed Identity for secure authentication
+- Microsoft Entra ID App Registration with proper Role-based access control (RBAC) configuration
+- All necessary networking and security configurations
+
 ![Screenshot of Azure Portal components](images/azure_portal_resources.png)
 
-#### Configure MCP server access to Postgres server.
+
+### Step 2: Configure database access
 1. Connect to your PostgreSQL server using `psql` or your preferred PostgreSQL client:
 
    Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.). 
@@ -90,7 +107,7 @@ The system consists of three main components:
 
    Alternatively, you can connect via the [PostgreSQL VSCode extension](https://learn.microsoft.com/en-us/azure/postgresql/extensions/vs-code-extension/quickstart-connect#add-a-connection-to-postgresql)
 
-2. Create the database principal for the MCP server's managed identity:
+1. Create the database principal for the MCP server's managed identity:
 
     ```sql
     SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
@@ -98,7 +115,7 @@ The system consists of three main components:
 
     Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
 
-3. *(Optional)* If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
+1. *(Optional)* If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
    
    ```sql
    GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
@@ -113,9 +130,11 @@ The system consists of three main components:
     ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<ACA_MI_DISPLAY_NAME>";
     ```
 
-## Use Azure Postgres MCP in AI Foundry
+## Configure Azure AI Foundry integration
 
-**Via Azure AI Foundry UI:**
+After you deploy your MCP server, connect it to Azure AI Foundry:
+
+### Connect via Azure AI Foundry portal
 
 1. Navigate to your Azure AI Foundry project
 2. Go to **Build** → **Create agent**  
@@ -144,24 +163,49 @@ The system consists of three main components:
     ```
 
 
-2. Test MCP server in AI Foundry Playground using natural language queries:
-    ```
-    List all tables in my PostgreSQL database
-    ```
+### Test the integration
 
-    ```
-    Show me the latest 10 records from the orders table
-    ```
+After you connect, test your MCP integration with natural language queries.
 
-    ```
-    Find customers who placed orders in the last 30 days
-    ```
+You can discover tables.
 
-> **Note**: The MCP server provides secure access to PostgreSQL data through conversational AI interfaces.
-> 
-**Via AI Foundry SDK:**
+```copilot-prompt
+List all tables in my PostgreSQL database
+```
 
-In your SDK code, add the following MCP config to test
+You can retrieve records with natural language.
+
+```copilot-prompt
+Show me the latest 10 records from the orders table
+```
+
+```copilot-prompt
+Find customers who placed orders in the last 30 days
+```
+
+You can do vector search and specify example queries to improve accuracy.
+
+```copilot-prompt
+Do a vector search for "product for customer that love to hike"
+```
+
+This is an example of a vector search.
+
+```sql
+- `SELECT id, name, price, embedding <=> azure_openai.create_embeddings(
+'text-embedding-3-small',
+'query example'
+)::vector AS similarity
+FROM public.products
+ORDER BY similarity
+LIMIT 10;
+```
+
+The AI agent automatically translates these requests into appropriate database operations through the MCP server.
+
+### Connect via Azure AI Foundry SDK
+
+For programmatic access, use the following MCP configuration in your Python code:
 
 ``` python
 mcp_tool_config = {
@@ -229,7 +273,6 @@ Show me all foreign key constraints in the database
 ```
 Find tables that contain customer information
 ```
-
 
 ## Configuration
 
@@ -307,12 +350,14 @@ This MCP server uses Entra ID and Managed Identity for secure PostgreSQL access:
 - Connected agents may request and receive data through natural language queries
 
 ### Security features
-- ✅ **Managed Identity**: No credentials stored in container images
-- ✅ **Entra ID Authentication**: Secure [database authentication](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/security-overview#access-control)
-- ✅ **RBAC**: Role-based [access control](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/security-overview#access-control) for database operations
-- ✅ **Row Level Security**: Fine-grained [access control at the row level](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/security-access-control)
+You can use the following [security features](security-overview.md#access-control) to protect your data:
 
-### Access Control Requirements
+- **Managed Identity**: No credentials stored in container images.
+- **Microsoft Entra ID Authentication**: Secure database authentication.
+- **RBAC**: Role-based access control for database operations.
+- **Row Level Security**: Fine-grained access control at the row level.
+
+### Best practices
 - **Grant database permissions ONLY to specific schemas and tables** needed for AI agents
 - Use principle of least privilege - don't grant broad database access
 - Regularly review and audit permissions granted to the MCP server's identity
