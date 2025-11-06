@@ -47,7 +47,12 @@ The fastest way to get started is by using the automated deployment script.
     cd azure-mcp-postgresql-server
     ```
 
-2. Before running the `azd up` command, you must go to the [main.parameters.json](/infra/main.parameters.json) file and update the `postgresResourceId` and `aifProjectResourceId` variables.
+2. Open [infra/main.parameters.json](/infra/main.parameters.json) and update these 2 values 
+   
+    | Parameter              | Description                                                                             |
+    | ---------------------- | --------------------------------------------------------------------------------------- |
+    | `postgresResourceId`   | Resource ID of the Azure Database for PostgreSQL Flexible Server you want to connect to |
+    | `aifProjectResourceId` | Resource ID of the Azure AI Foundry project you want to use                             |
 
     a. Update the [`postgresResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L17) variable to match the Postgres DB you want to access. 
     
@@ -72,11 +77,13 @@ The fastest way to get started is by using the automated deployment script.
     Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
-1. Deploy the complete infrastructure with a single script:
+3. Deploy:
    
     ```bash
     azd up
     ```
+
+    After deployment completes, azd will output the MCP server URL + Managed Identity info you’ll use in the next steps.
 
 This deployment creates:
 - Azure Container Apps instance for the MCP server
