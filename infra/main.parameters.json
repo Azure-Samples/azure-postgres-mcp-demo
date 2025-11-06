@@ -15,10 +15,10 @@
       "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
     },
     "postgresResourceId": {
-      "value": "${POSTGRES_RESOURCE_ID}"
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
     },
     "aifProjectResourceId": {
-      "value": "${AIF_PROJECT_RESOURCE_ID}"
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
     },
     "appInsightsConnectionString": {
       "value": "DISABLED"

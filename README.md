@@ -9,7 +9,6 @@ This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en
 - 🔍 **SQL Operations** - Execute queries, manage data, perform analytics
 - 📊 **Schema Discovery** - Automatic table and column analysis
 - 🔐 **Enterprise Security** - Azure managed identity and Entra ID authentication  
-- 🐳 **Production Ready** - Containerized deployment to Azure Container Apps
 - 🎯 **Natural Language** - Query databases using conversational AI
 - 🚀 **Easy Deployment** - One-click Azure deployment with complete infrastructure
 
@@ -37,18 +36,37 @@ The system consists of three main components:
 
 ### Deploy Azure Database for Postgres Self-Hosted MCP to Azure via azd up (Recommended)
 
-Deploy the complete infrastructure with a single script:
-```bash
+1. Go to the [main.parameters.json](/infra/main.parameters.json) file and update the `postgresResourceId` and `aifProjectResourceId` variables
 
-# Set the environment variables to match the Postgres DB you want to access
-azd env set POSTGRES_RESOURCE_ID "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
+    a. Update the `postgresResourceId` variable to match the Postgres DB you want to access. 
+    
+    ```json
+    "postgresResourceId": {
+    "value": "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
+    }
+    ```
+    > [!TIP] 
+    Find your Azure Database for PostgreSQL subscription ID, resource group, and server name in your Azure portal:
+    ![Screenshot of Azure details page.](images/azure-postgres-details.png)
 
-# Set the environment variables to match the AI Foundry resource you want to use
-azd env set AIF_PROJECT_RESOURCE_ID "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
 
-# Then deploy
-azd up
-```
+    b. Update the `aifProjectResourceId` variable to match the AI Foundry resource you want to use
+    ```json
+        "aifProjectResourceId": {
+        "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
+        },
+    ```
+
+    > [!TIP] 
+    Find your Azure AI Foundry project name, subscription ID, and parent resource name in your Azure portal:
+    ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details.png)
+
+2. Deploy the complete infrastructure with a single script:
+   
+    ```bash
+    azd up
+    ```
+
 **What gets deployed:** Azure Container Apps, Managed Identity, Entra ID App Registration with full RBAC setup.
 ![Screenshot of Azure Portal components](images/azure_portal_resources.png)
 
@@ -103,11 +121,12 @@ azd up
 2. Go to **Build** → **Create agent**  
 3. Select the **+ Add** in the tools section
 4. Select the **Custom** tab 
-5. Choose **Model Context Protocol** as the tool and click **Create** ![Find MCP](images/use_in_ai_foundry_ui_mcp_connect.png)
-6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/AI_Foundry_Entra_Connect.png)
+5. Choose **Model Context Protocol** as the tool and click **Create** ![Find MCP](images/ai-foundry-ui-mcp-connect.png)
+6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-entra-connect.png)
 7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
 > [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
 1. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
+   
     Give the agent instructions:
 
     ```
@@ -125,7 +144,7 @@ azd up
     ```
 
 
-8. Test MCP server in AI Foundry Playground using natural language queries:
+2. Test MCP server in AI Foundry Playground using natural language queries:
     ```
     List all tables in my PostgreSQL database
     ```
