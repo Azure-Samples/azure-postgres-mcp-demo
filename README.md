@@ -58,8 +58,8 @@ The system consists of three main components:
     ```
 
     > [!TIP] 
-    Find your Azure AI Foundry project name, subscription ID, and parent resource name in your Azure portal:
-    ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details.png)
+    Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
+    ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
 2. Deploy the complete infrastructure with a single script:
    
