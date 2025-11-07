@@ -61,7 +61,7 @@ The fastest way to get started is by using the automated deployment script.
     "value": "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
     }
     ```
-    > [!TIP] 
+    > [!Note]
     Find your Azure Database for PostgreSQL subscription ID, resource group, and server name in your Azure portal:
     ![Screenshot of Azure details page.](images/azure-postgres-details.png)
 
@@ -73,7 +73,7 @@ The fastest way to get started is by using the automated deployment script.
         },
     ```
 
-    > [!TIP] 
+    > [!Note]
     Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
@@ -150,7 +150,8 @@ After you deploy your MCP server, connect it to Azure AI Foundry:
 5. Choose **Model Context Protocol** as the tool and click **Create** ![Find MCP](images/ai-foundry-ui-mcp-connect.png)
 6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-entra-connect.png)
 7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
-> [!TIP] Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
+> [!Note]
+>  Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
 1. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
    
     Give the agent instructions:
