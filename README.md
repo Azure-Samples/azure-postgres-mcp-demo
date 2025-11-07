@@ -62,7 +62,7 @@ The fastest way to get started is by using the automated deployment script.
     }
     ```
     > [!Note]
-    Find your Azure Database for PostgreSQL subscription ID, resource group, and server name in your Azure portal:
+    > Find your Azure Database for PostgreSQL subscription ID, resource group, and server name in your Azure portal:
     ![Screenshot of Azure details page.](images/azure-postgres-details.png)
 
 
@@ -74,7 +74,7 @@ The fastest way to get started is by using the automated deployment script.
     ```
 
     > [!Note]
-    Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
+    > Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
 3. Deploy:
