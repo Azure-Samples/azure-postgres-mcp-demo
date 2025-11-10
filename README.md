@@ -77,13 +77,13 @@ The fastest way to get started is by using the automated deployment script.
     > Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
-3. Deploy:
+3. Make sure you are in the main directory (`azure-postgres-mcp-demo`) then deploy:
    
     ```bash
     azd up
     ```
 
-    After deployment completes, azd will output the MCP server URL + Managed Identity info you’ll use in the next steps.
+    The deployment **usually takes 5-8 mins**. After deployment completes, azd will output the MCP server URL + Managed Identity info you’ll use in the next steps.
 
 This deployment creates:
 - Azure Container Apps instance for the MCP server
@@ -117,24 +117,27 @@ This deployment creates:
 1. Create the database principal for the MCP server's managed identity:
 
     ```sql
-    SELECT * FROM pgaadauth_create_principal('<ACA_MI_DISPLAY_NAME>', false, false);
+    SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_NAME>', false, false);
     ```
 
-    Replace `<ACA_MI_DISPLAY_NAME>` with the value from `deployment-info.json` (output of step 2) (e.g., `azure-mcp-postgres-server`).
+    Replace `<CONTAINER_APP_NAME>` (e.g., `azure-mcp-postgres-server`).
 
-1. *(Optional)* If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
+    > [!Note]
+    >  Use `azd env get-values` command to find the `CONTAINER_APP_NAME` value
+
+2. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
    
    ```sql
-   GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
+   GRANT SELECT ON my_table TO "<CONTAINER_APP_NAME>";
    ```
 
     For all tables
     ```sql
     -- Grant SELECT on all existing tables
-    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<ACA_MI_DISPLAY_NAME>";
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<CONTAINER_APP_NAME>";
 
     -- Grant SELECT on all future tables
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<ACA_MI_DISPLAY_NAME>";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<CONTAINER_APP_NAME>";
     ```
 
 ## Configure Azure AI Foundry integration
@@ -165,7 +168,7 @@ After you deploy your MCP server, connect it to Azure AI Foundry:
             "server": "<SERVER_NAME>",
             "subscription": "<SUBSCRIPTION_ID>",
             "table": "<TABLE_NAME>",
-            "user": "<ACA_MI_DISPLAY_NAME>",       
+            "user": "<CONTAINER_APP_NAME>",       
       },
     "learn": true
     ```
@@ -215,26 +218,32 @@ The AI agent automatically translates these requests into appropriate database o
 
 For programmatic access, use the following MCP configuration in your Python code:
 
-``` python
-mcp_tool_config = {
-    "type": "mcp",
-    "server_url": <mcp_server_url>,
-    "server_label": <mcp_server_label>,
-    "server_authentication": {
-        "type": "connection",
-        "connection_name": <connection_name>,
-    }
-}
+1. Create a `.env` file from the `.env.example`:
+   ```
+   cd client
+   cp .env.example .env
+   ```
 
-mcp_tool_resources = {
-    "mcp": [
-        {
-            "server_label": <mcp_server_label>,
-            "require_approval": "never"
-        }
-    ]
-}
-```
+2. Update all the value to run your agent. All values can be found in your Azure AI Foundry Project.
+   
+   I'll create a table using the sanitized environment variables from your `.env.example` file:
+
+    | Variable Name | Example Value | Description |
+    |---------------|---------------|-------------|
+    | `PROJECT_ENDPOINT` | `https://example-endpoint.services.ai.azure.com/api/projects/example-project` | Azure AI Foundry project endpoint |
+    | `MODEL_DEPLOYMENT_NAME` | `example-model` | Name of the deployed AI model |
+    | `MCP_SERVER_URL` | `https://example-mcp-server.azurecontainerapps.io` | MCP server endpoint URL |
+    | `MCP_SERVER_LABEL` | `example-label` | Label for the MCP server |
+    | `AZURE_OPENAI_API_KEY` | `your-azure-openai-api-key` | Azure OpenAI service API key |
+    | `AZURE_OPENAI_ENDPOINT` | `https://example-openai-endpoint.openai.azure.com/` | Azure OpenAI service endpoint |
+    | `AZURE_OPENAI_API_VERSION` | `your-api-version` | API version for Azure OpenAI |
+    | `AZURE_SUBSCRIPTION_ID` | `your-azure-subscription-id` | Azure subscription identifier |
+    | `CONNECTION_NAME` | `your-connection-name` | Name for the database connection |
+    | `POSTGRES_SERVER` | `your-postgres-server` | PostgreSQL server name |
+    | `POSTGRES_DATABASE` | `your-postgres-database` | PostgreSQL database name |
+    | `POSTGRES_TABLE` | `your-postgres-table` | Target PostgreSQL table |
+    | `POSTGRES_USER` | `your-postgres-user` | PostgreSQL user for authentication, use CONTAINER_APP_NAME here|
+    | `AZURE_RESOURCE_GROUP` | `your-azure-resource-group` | Azure resource group name |
 
 [Full SDK sample](client/agents_mcp_sample.py) in the the client folder 
 
@@ -319,6 +328,17 @@ curl https://your-mcp-server.azurecontainerapps.io/health
 
 ### Common Issues
 
+#### Cannot validate Microsoft Entra ID ... name isn't unique in the tenant
+- **Error**: Someone in your tenant already deployed a Postgres MCP server with the name `azure-mcp-postgres-server`
+    ```sql
+    postgres=> SELECT * FROM pgaadauth_create_principal('azure-mcp-postgres-server', false, false);
+    ERROR:  Cannot validate Microsoft Entra ID user "azure-mcp-postgres-server" because its name isn't unique in the tenant.
+    Make sure it's correct and retry.
+    CONTEXT:  SQL statement "SECURITY LABEL for "pgaadauth" on role "azure-mcp-postgres-server" is 'aadauth'"
+    PL/pgSQL function pgaadauth_create_principal(text,boolean,boolean) line 23 at EXECUTE
+    ```
+- **Solution**: Update the acaName in [infra/main.parameter.json](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/89c6f3692dca0b7b70267c55ba12f2b96b90448e/infra/main.parameters.json#L12) to a different name, and rerun deployment with `azd up`
+  
 #### Authentication Errors
 - **Error**: `Unauthorized` or `Forbidden`
 - **Solution**: Verify managed identity configuration and PostgreSQL access permissions
@@ -332,7 +352,7 @@ curl https://your-mcp-server.azurecontainerapps.io/health
 - **Solution**: Ensure the managed identity has appropriate database permissions
 
 ```sql
-GRANT SELECT ON my_table TO "<ACA_MI_DISPLAY_NAME>";
+GRANT SELECT ON my_table TO "<CONTAINER_APP_NAME>";
 ```
 
 ### Debug Mode
