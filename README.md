@@ -143,7 +143,7 @@ After you deploy your MCP server, connect it to Azure AI Foundry:
 
 ### Connect via Azure AI Foundry portal
 
-1. Navigate to your Azure AI Foundry project
+1. Navigate to your Azure AI Foundry project. Please use the preview UI: https://aka.ms/nextgen-canary
 2. Go to **Build** → **Create agent**  
 3. Select the **+ Add** in the tools section
 4. Select the **Custom** tab 
