@@ -225,8 +225,6 @@ For programmatic access, use the following MCP configuration in your Python code
    ```
 
 2. Update all the value to run your agent. All values can be found in your Azure AI Foundry Project.
-   
-   I'll create a table using the sanitized environment variables from your `.env.example` file:
 
     | Variable Name | Example Value | Description |
     |---------------|---------------|-------------|
