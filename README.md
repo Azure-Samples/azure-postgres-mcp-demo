@@ -218,7 +218,7 @@ The AI agent automatically translates these requests into appropriate database o
 
 For programmatic access, use the following MCP configuration in your Python code:
 
-1. Create a `.env` file from the `.env.example`:
+1. Create a `.env` file from the [`.env.example`](client/.env.example):
    ```
    cd client
    cp .env.example .env
@@ -294,19 +294,6 @@ Find tables that contain customer information
 ### Environment Variables
 
 #### Client Configuration (.env file)
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `PROJECT_ENDPOINT` | Yes | AI Foundry project endpoint | `https://example-endpoint.services.ai.azure.com/api/projects/example-project` |
-| `MODEL_DEPLOYMENT_NAME` | Yes | AI model deployment name | `gpt-4o` |
-| `MCP_SERVER_URL` | Yes | MCP server endpoint URL | `https://example-mcp-server.azurecontainerapps.io` |
-| `MCP_SERVER_LABEL` | Yes | Label for the MCP server | `azure-postgres-mcp` |
-| `AZURE_OPENAI_API_KEY` | Yes* | Azure OpenAI API key | `your-azure-openai-api-key` |
-| `AZURE_OPENAI_ENDPOINT` | Yes* | Azure OpenAI service endpoint | `https://example-openai-endpoint.openai.azure.com/` |
-| `AZURE_OPENAI_API_VERSION` | Yes* | Azure OpenAI API version | `2024-02-01` |
-
-*Either use API key or managed identity authentication
-
-#### Sample .env file
 Check [.env.example](client/.env.example)
 
 ### Authentication & Security
@@ -321,8 +308,20 @@ Uses managed identity with these permissions:
 ### Health Check
 ```bash
 # Check MCP server status
-curl https://your-mcp-server.azurecontainerapps.io/health
+ping https://your-mcp-server.azurecontainerapps.io
 ```
+
+If MCP is up and running: 
+
+```
+64 bytes from X.XXX.XXX.X: icmp_seq=0 ttl=108 time=92.748 ms
+```
+
+If MCP is *not running*:
+```
+ping: cannot resolve https://your-mcp-server.azurecontainerapps.io: Unknown host
+```
+You will need to re-running azd up.
 
 ### Common Issues
 
@@ -358,10 +357,10 @@ GRANT SELECT ON my_table TO "<CONTAINER_APP_NAME>";
 #### View Logs
 ```bash
 # Stream Container Apps logs
-az containerapp logs tail --name your-mcp-server --resource-group your-resource-group
+az containerapp logs show -n your-mcp-container-name -g your-resource-group
 
 # Check deployment status
-az containerapp show --name your-mcp-server --resource-group your-resource-group
+az containerapp show -n your-mcp-container-name -g your-resource-group
 ```
 
 ## Security Considerations
@@ -430,6 +429,5 @@ If you want to contribute to the Azure MCP server wich includes teh Azure Postgr
 
 ## Support
 
-- **Health**: `GET /health` endpoint for server status
 - **Issues**: GitHub Issues with logs and configuration details
 - **Monitoring**: Azure Container Apps logs and Application Insights
