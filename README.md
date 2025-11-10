@@ -44,7 +44,7 @@ The fastest way to get started is by using the automated deployment script.
     ```bash
     # Clone the repository
     git clone https://github.com/Azure-Samples/azure-postgres-mcp-demo
-    cd azure-mcp-postgresql-server
+    cd azure-postgres-mcp-demo
     ```
 
 2. Open [infra/main.parameters.json](/infra/main.parameters.json) and update these 2 values 
