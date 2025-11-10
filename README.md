@@ -43,7 +43,7 @@ The fastest way to get started is by using the automated deployment script.
 
     ```bash
     # Clone the repository
-    git clone https://github.com/Azure-Samples/azure-mcp-postgresql-server
+    git clone https://github.com/Azure-Samples/azure-postgres-mcp-demo
     cd azure-mcp-postgresql-server
     ```
 
