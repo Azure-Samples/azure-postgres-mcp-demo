@@ -7,7 +7,7 @@
   Entra Application Registration
      This is like a "blueprint" that defines what the Entra App can do. It includes
      app roles (think of these as custom permissions), identifier URIs for OAuth validation,
-    and basic app configuration.
+     and basic app configuration.
 
   Service Principal
      This is the actual "identity" that represents the Entra App within the Azure
@@ -27,10 +27,10 @@ param entraAppUniqueName string
 
 var orgServiceManagementReferenceId = '4405e061-966a-4249-afdd-f7435f54a510'
 
-var entraAppRoleValue = 'Mcp.Tool.Executor'
+var entraAppRoleValue = 'Mcp.Tools.ReadWrite.All'
 var entraAppRoleId = guid(subscription().id, entraAppRoleValue)
-var entraAppRoleDisplayName = 'MCP Tool Executor'
-var entraAppRoleDescription = 'Executor role for MCP Tool operations'
+var entraAppRoleDisplayName = 'Azure MCP Tools ReadWrite All'
+var entraAppRoleDescription = 'Application permission for Azure MCP tool calls'
 
 resource entraApp 'Microsoft.Graph/applications@v1.0' = {
   uniqueName: entraAppUniqueName 

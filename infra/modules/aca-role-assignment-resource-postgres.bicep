@@ -1,4 +1,7 @@
 @description('Full resource ID of the Postgres resource')
+@metadata({
+  example: '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.DBforPostgreSQL/flexibleServers/myPostgresServer'
+})
 param postgresResourceId string
 
 @description('Azure Container App Managed Identity Principal ID to assign the role to')
@@ -7,7 +10,7 @@ param acaPrincipalId string
 @description('Role definition ID (GUID) for the Azure RBAC role')
 param roleDefinitionId string
 
-// postgresResourceId Format: /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{name}
+// Expected format: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{name}
 var resourceIdParts = split(postgresResourceId, '/')
 var postgresServerName = resourceIdParts[8]
 

@@ -27,10 +27,8 @@ The system consists of three main components:
 ## Prerequisites
 
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)  
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)  
 - [PostgreSQL Client](https://www.postgresql.org/download/)  
 - [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview)
-- [Microsoft .NET](https://dotnet.microsoft.com/en-us/download)
 
 ## Quick start deployment
 
@@ -58,7 +56,7 @@ The fastest way to get started is by using the automated deployment script.
     
     ```json
     "postgresResourceId": {
-    "value": "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<postgres-resource-group>/providers/Microsoft.DBforPostgreSQL/flexibleServers/<postgres-server-name>"
     }
     ```
     > [!Note]
@@ -66,30 +64,32 @@ The fastest way to get started is by using the automated deployment script.
     ![Screenshot of Azure details page.](images/azure-postgres-details.png)
 
 
-    b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the AI Foundry resource you want to use
+    b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the AI Foundry project resource you want to use
     ```json
     "aifProjectResourceId": {
-    "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
-        },
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
+    }
     ```
 
     > [!Note]
     > Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
     ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
 
-3. Make sure you are in the main directory (`azure-postgres-mcp-demo`) then deploy:
-   
+3. Create a new azd environment and deploy. Make sure you are in the main directory (`azure-postgres-mcp-demo`):
+
+    ```bash
+    azd env new
+    ```
     ```bash
     azd up
     ```
 
-    The deployment **usually takes 5-8 mins**. After deployment completes, azd will output the MCP server URL + Managed Identity info you’ll use in the next steps.
+    The deployment **usually takes 5-8 mins**. After deployment completes, azd will output the MCP server URL + Managed Identity info you'll use in the next steps.
 
 This deployment creates:
-- Azure Container Apps instance for the MCP server
-- Managed Identity for secure authentication
-- Microsoft Entra ID App Registration with proper Role-based access control (RBAC) configuration
-- All necessary networking and security configurations
+- Azure Container App running the MCP server with Managed Identity (Reader access to your PostgreSQL server)
+- Entra ID App Registration for MCP server authentication
+- Entra ID Role assignment for AI Foundry to authenticate to the MCP server
 
 ![Screenshot of Azure Portal components](images/azure_portal_resources.png)
 
@@ -120,7 +120,7 @@ This deployment creates:
     SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_NAME>', false, false);
     ```
 
-    Replace `<CONTAINER_APP_NAME>` (e.g., `azure-mcp-postgres-server`).
+    Replace `<CONTAINER_APP_NAME>` (e.g., `azmcp-postgres-server-nc3im7asyw`).
 
     > [!Note]
     >  Use `azd env get-values` command to find the `CONTAINER_APP_NAME` value
@@ -419,9 +419,8 @@ The Azure Postgres MCP server is a subset of the [Azure MCP Server](https://gith
 ### Development Workflow
 1. **Fork and clone** the repository
 2. **Create feature branch** from `main`
-3. **Test locally** using Docker
-4. **Deploy to test environment**
-5. **Submit pull request** with comprehensive testing
+3. **Deploy to test environment**
+4. **Submit pull request** with comprehensive testing
 
 If you want to contribute to the Azure MCP server wich includes teh Azure Postgres MCP follow the [Contribution Guide](https://github.com/microsoft/mcp/blob/main/CONTRIBUTING.md)
 

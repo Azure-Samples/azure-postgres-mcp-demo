@@ -1,8 +1,8 @@
 @description('Location for all resources')
 param location string = resourceGroup().location
 
-@description('Name for the Azure Container App')
-param acaName string
+@description('Name prefix for the Azure Container App')
+param acaNamePrefix string
 
 @description('Display name for the Entra App')
 param entraAppDisplayName string
@@ -19,6 +19,9 @@ param aifProjectResourceId string
 @description('Application Insights connection string. Use "DISABLED" to disable telemetry, or provide existing connection string. If omitted, new App Insights will be created.')
 param appInsightsConnectionString string = ''
 
+// Generate unique ACA name from prefix
+var acaName = '${acaNamePrefix}-${take(uniqueString(resourceGroup().id), 10)}'
+
 // Deploy Application Insights if appInsightsConnectionString is empty and not DISABLED
 var appInsightsName = '${acaName}-insights'
 //
@@ -32,7 +35,7 @@ module appInsights 'modules/application-insights.bicep' = {
 }
 
 // Deploy Entra App
-var entraAppUniqueName = '${replace(toLower(entraAppDisplayName), ' ', '-')}-${uniqueString(deployment().name, resourceGroup().id)}'
+var entraAppUniqueName = '${replace(toLower(entraAppDisplayName), ' ', '-')}-${uniqueString(resourceGroup().id)}'
 //
 module entraApp 'modules/entra-app.bicep' = {
   name: 'entra-app-deployment'
@@ -42,7 +45,7 @@ module entraApp 'modules/entra-app.bicep' = {
   }
 }
 
-// Deploy ACA Infrastructure
+// Deploy ACA Infrastructure to host Azure MCP Postgres Server
 module acaInfrastructure 'modules/aca-infrastructure.bicep' = {
   name: 'aca-infrastructure-deployment'
   params: {
@@ -52,6 +55,7 @@ module acaInfrastructure 'modules/aca-infrastructure.bicep' = {
     azureMcpCollectTelemetry: string(!empty(appInsights.outputs.connectionString))
     azureAdTenantId: tenant().tenantId
     azureAdClientId: entraApp.outputs.entraAppClientId
+    namespaces: ['postgres']
   }
 }
 
@@ -89,8 +93,6 @@ output ENTRA_APP_ROLE_ID string = entraApp.outputs.entraAppRoleId
 output ENTRA_APP_IDENTIFIER_URI string = entraApp.outputs.entraAppIdentifierUri
 
 // ACA Infrastructure outputs
-output CONTAINER_REGISTRY_LOGIN_SERVER string = acaInfrastructure.outputs.containerRegistryLoginServer
-output CONTAINER_REGISTRY_NAME string = acaInfrastructure.outputs.containerRegistryName
 output CONTAINER_APP_URL string = acaInfrastructure.outputs.containerAppUrl
 output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
 output CONTAINER_APP_PRINCIPAL_ID string = acaInfrastructure.outputs.containerAppPrincipalId
