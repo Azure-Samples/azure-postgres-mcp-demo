@@ -8,8 +8,8 @@
     "entraAppDisplayName": {
       "value": "Azure MCP Postgres Server API"
     },
-    "acaName": {
-      "value": "azure-mcp-postgres-server"
+    "acaNamePrefix": {
+      "value": "azmcp-postgres-server"
     },
     "acaRoleId": {
       "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
@@ -25,4 +25,3 @@
     }
   }
 }
-
