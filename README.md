@@ -198,12 +198,10 @@ You can do vector search and specify example queries to improve accuracy.
 
 ```copilot-prompt
 Do a vector search for "product for customer that love to hike"
-```
 
 This is an example of a vector search.
 
-```sql
-- `SELECT id, name, price, embedding <=> azure_openai.create_embeddings(
+`SELECT id, name, price, embedding <=> azure_openai.create_embeddings(
 'text-embedding-3-small',
 'query example'
 )::vector AS similarity
