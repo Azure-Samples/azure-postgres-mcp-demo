@@ -153,10 +153,11 @@ After you deploy your MCP server, connect it to Azure AI Foundry:
 3. Select the **+ Add** in the tools section
 4. Select the **Custom** tab 
 5. Choose **Model Context Protocol** as the tool and click **Create** ![Find MCP](images/ai-foundry-ui-mcp-connect.png)
-6. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-entra-connect.png)
-7. Enter your <entra-app-client-id> as the audience. This is value from the output of your azd up command. 
+6. Enter the `CONTAINER_APP_URL` value as the Remote MCP Server endpoint. This is value is from the output of the `azd env get-values` command. 
+7. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-entra-connect.png)
+8. Enter your <entra-app-client-id> as the audience. This is value from the output of the `azd env get-values`command. 
 > [!Note]
->  Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value
+>  Use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value and `CONTAINER_APP_URL`
 1. Add instructions to your agent. ![Agent Instructions](images/agent_instructions_playground.png)
    
     Give the agent instructions:
