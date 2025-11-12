@@ -97,7 +97,9 @@ This deployment creates:
 ### Step 2: Configure database access
 1. Connect to your PostgreSQL server using `psql` or your preferred PostgreSQL client:
 
-   Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.). 
+   Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.).    Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.). Find details for your connection in the **Connect** Tab in your Postgres Resource in the Azure Portal:
+   
+   ![Connect Tab](images/azure-postgres-connect.png)
 
    ```bash
    export PGHOST=<your-database-host-name>
