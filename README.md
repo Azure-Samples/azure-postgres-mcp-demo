@@ -60,8 +60,8 @@ The fastest way to get started is by using the automated deployment script.
     }
     ```
     > [!Note]
-    > Find your Azure Database for PostgreSQL subscription ID, resource group, and server name in your Azure portal:
-    ![Screenshot of Azure details page.](images/azure-postgres-details.png)
+    > Find your **Azure Database for PostgreSQL** Resource ID in your Azure portal.  **JSON View** → **Resource ID**:
+    ![Screenshot of Azure details page.](images/azure_json_view.png)
 
 
     b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the AI Foundry project resource you want to use
@@ -72,8 +72,8 @@ The fastest way to get started is by using the automated deployment script.
     ```
 
     > [!Note]
-    > Find your Azure AI Foundry project name, subscription ID, and parent resource name in your AI Foundry Portal. By clicking **Profile Icon** → **Project Details**:
-    ![Screenshot of Azure AI Foundry details.](images/azure-foundry-details-in-foundry.png)
+    > Find your **Azure AI Foundry project** Resource ID in your Azure portal.  **JSON View** → **Resource ID**:
+    ![Screenshot of Azure details page.](images/azure_json_view_aif.png)
 
 3. Create a new azd environment and deploy. Make sure you are in the main directory (`azure-postgres-mcp-demo`):
 
@@ -116,7 +116,7 @@ This deployment creates:
 
    Alternatively, you can connect via the [PostgreSQL VSCode extension](https://learn.microsoft.com/en-us/azure/postgresql/extensions/vs-code-extension/quickstart-connect#add-a-connection-to-postgresql)
 
-1. Create the database principal for the MCP server's managed identity:
+1. Create the database principal for the MCP server's managed identity, only run this command run in the **default postgres database**, the command is only allowed in this database:
 
     ```sql
     SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_NAME>', false, false);
@@ -127,7 +127,7 @@ This deployment creates:
     > [!Note]
     >  Use `azd env get-values` command to find the `CONTAINER_APP_NAME` value
 
-2. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables.
+2. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables. Make sure you run this command in the **correct database** your tables are located in.
    
    ```sql
    GRANT SELECT ON my_table TO "<CONTAINER_APP_NAME>";
@@ -172,8 +172,7 @@ After you deploy your MCP server, connect it to Azure AI Foundry:
             "subscription": "<SUBSCRIPTION_ID>",
             "table": "<TABLE_NAME>",
             "user": "<CONTAINER_APP_NAME>",       
-      },
-    "learn": true
+      }
     ```
 
 
@@ -322,7 +321,7 @@ If MCP is *not running*:
 ```
 ping: cannot resolve https://your-mcp-server.azurecontainerapps.io: Unknown host
 ```
-You will need to re-running azd up.
+You will need to re-run `azd up`.
 
 ### Common Issues
 
@@ -398,15 +397,6 @@ For detailed information about how AI Foundry projects will authenticate to Azur
 
 ### Technical Details
 The Azure Postgres MCP server is a subset of the [Azure MCP Server](https://github.com/microsoft/mcp/tree/main/servers/Azure.Mcp.Server).
-
-### Architecture Diagram
-
-<details>
-<summary>Architecture diagram</summary>
-
-![Architecture Diagram](images/arch_flow_chart.png)
-
-</details>
 
 ## Additional Resources
 
