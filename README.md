@@ -2,7 +2,7 @@
 
 This is a demo repo that will show you how to setup the **Azure Database for Postgres MCP server** that enables AI agents to interact with Azure PostgreSQL databases through natural language queries. Supports SQL operations, schema discovery, and data analysis with enterprise-grade security.
 
-This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)**. This repo will show you how to enable the Postgres specific features and how to connect it **Azure AI Foundry** and other MCP clients to interact with Azure Database for Postgres via MCP
+This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)**. This repo will show you how to enable the Postgres specific features and how to connect it to your **Foundry** project via MCP
 
 ## Features
 
@@ -16,13 +16,13 @@ This server is a part of the **[Azure MCP Server](https://learn.microsoft.com/en
 
 The system consists of three main components:
 
-1. **AI Foundry Agent** (Client): Authenticates to the Azure MCP Server using its Managed Identity.  
+1. **Foundry Agent** (Client): Authenticates to the Azure MCP Server using its Managed Identity.  
 
 2. **Azure MCP PostgreSQL Server** (Server): Runs in Azure Container Apps (ACA), using ACA Managed Identity for PostgreSQL access.
 
 3. **PostgreSQL Database** (Target): Azure Database for PostgreSQL Flexible Server with Entra ID authentication enabled.
 
-**Identity Separation**: Two separate managed identities are used - the client MI (AI Foundry) authenticates to the MCP Server, while the MCP Server uses its own ACA MI to access PostgreSQL, ensuring proper security isolation.
+**Identity Separation**: Two separate managed identities are used - the client MI (Foundry) authenticates to the MCP Server, while the MCP Server uses its own ACA MI to access PostgreSQL, ensuring proper security isolation.
 
 ## Prerequisites
 
@@ -50,7 +50,7 @@ The fastest way to get started is by using the automated deployment script.
     | Parameter              | Description                                                                             |
     | ---------------------- | --------------------------------------------------------------------------------------- |
     | `postgresResourceId`   | Resource ID of the Azure Database for PostgreSQL Flexible Server you want to connect to |
-    | `aifProjectResourceId` | Resource ID of the Azure AI Foundry project you want to use                             |
+    | `aifProjectResourceId` | Resource ID of the Azure Foundry project you want to use                             |
 
     a. Update the [`postgresResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L17) variable to match the Postgres DB you want to access. 
     
@@ -64,7 +64,7 @@ The fastest way to get started is by using the automated deployment script.
     ![Screenshot of Azure details page.](images/azure_json_view.png)
 
 
-    b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the AI Foundry project resource you want to use
+    b. Update the [`aifProjectResourceId`](https://github.com/Azure-Samples/azure-postgres-mcp-demo/blob/1f94c56bdd8ab4b383fdfc8eac23b05db2c4b09f/infra/main.parameters.json#L20) variable to match the Foundry project resource you want to use
     ```json
     "aifProjectResourceId": {
       "value": "/subscriptions/<subscription-id>/resourceGroups/<aifoundry-resource-group>/providers/Microsoft.CognitiveServices/accounts/<aifoundry-resource-name>/projects/<aifoundry-project-name>"
@@ -72,7 +72,7 @@ The fastest way to get started is by using the automated deployment script.
     ```
 
     > [!Note]
-    > Find your **Azure AI Foundry project** Resource ID in your Azure portal.  **JSON View** → **Resource ID**:
+    > Find your **Foundry project** Resource ID in your Azure portal.  **JSON View** → **Resource ID**:
     ![Screenshot of Azure details page.](images/azure_json_view_aif.png)
 
 3. Create a new azd environment and deploy. Make sure you are in the main directory (`azure-postgres-mcp-demo`):
@@ -89,7 +89,7 @@ The fastest way to get started is by using the automated deployment script.
 This deployment creates:
 - Azure Container App running the MCP server with Managed Identity (Reader access to your PostgreSQL server)
 - Entra ID App Registration for MCP server authentication
-- Entra ID Role assignment for AI Foundry to authenticate to the MCP server
+- Entra ID Role assignment for Foundry to authenticate to the MCP server
 
 ![Screenshot of Azure Portal components](images/azure_portal_resources.png)
 
@@ -142,13 +142,13 @@ This deployment creates:
     ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<CONTAINER_APP_NAME>";
     ```
 
-## Configure Azure AI Foundry integration
+## Configure Foundry integration
 
-After you deploy your MCP server, connect it to Azure AI Foundry:
+After you deploy your MCP server, connect it to the Foundry:
 
-### Connect via Azure AI Foundry portal
+### Connect via Foundry portal
 
-1. Navigate to your Azure AI Foundry project. Please use the preview UI: https://aka.ms/nextgen-canary
+1. Navigate to your Foundry project. Please use the preview UI: https://aka.ms/nextgen-canary
 2. Go to **Build** → **Create agent**  
 3. Select the **+ Add** in the tools section
 4. Select the **Custom** tab 
@@ -214,7 +214,7 @@ LIMIT 10;
 
 The AI agent automatically translates these requests into appropriate database operations through the MCP server.
 
-### Connect via Azure AI Foundry SDK
+### Connect via Azure Foundry SDK
 
 For programmatic access, use the following MCP configuration in your Python code:
 
@@ -224,11 +224,11 @@ For programmatic access, use the following MCP configuration in your Python code
    cp .env.example .env
    ```
 
-2. Update all the value to run your agent. All values can be found in your Azure AI Foundry Project.
+2. Update all the value to run your agent. All values can be found in your Foundry Project.
 
     | Variable Name | Example Value | Description |
     |---------------|---------------|-------------|
-    | `PROJECT_ENDPOINT` | `https://example-endpoint.services.ai.azure.com/api/projects/example-project` | Azure AI Foundry project endpoint |
+    | `PROJECT_ENDPOINT` | `https://example-endpoint.services.ai.azure.com/api/projects/example-project` | Foundry project endpoint |
     | `MODEL_DEPLOYMENT_NAME` | `example-model` | Name of the deployed AI model |
     | `MCP_SERVER_URL` | `https://example-mcp-server.azurecontainerapps.io` | MCP server endpoint URL |
     | `MCP_SERVER_LABEL` | `example-label` | Label for the MCP server |
@@ -391,9 +391,9 @@ You can use the following [security features](security-overview.md#access-contro
 
 ## Appendix
 
-### AI Foundry Project Managed Identity Authentication Flow [Needs to be updated]
+### Foundry Project Managed Identity Authentication Flow [Needs to be updated]
 
-For detailed information about how AI Foundry projects will authenticate to Azure MCP servers using managed identity, including SDK usage patterns.
+For detailed information about how Foundry projects will authenticate to Azure MCP servers using managed identity, including SDK usage patterns.
 
 ### Technical Details
 The Azure Postgres MCP server is a subset of the [Azure MCP Server](https://github.com/microsoft/mcp/tree/main/servers/Azure.Mcp.Server).
@@ -404,7 +404,7 @@ The Azure Postgres MCP server is a subset of the [Azure MCP Server](https://gith
 - **[Azure MCP Server](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)**
 - **[Azure Database for PostgreSQL Documentation](https://docs.microsoft.com/azure/postgresql/)**
 - **[Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)**
-- **[AI Foundry Documentation](https://docs.microsoft.com/azure/ai-foundry/)**
+- **[Foundry Documentation](https://docs.microsoft.com/azure/ai-foundry/)**
 
 
 ## Contributing
