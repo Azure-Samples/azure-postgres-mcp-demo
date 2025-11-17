@@ -95,6 +95,8 @@ output ENTRA_APP_IDENTIFIER_URI string = entraApp.outputs.entraAppIdentifierUri
 // ACA Infrastructure outputs
 output CONTAINER_APP_URL string = acaInfrastructure.outputs.containerAppUrl
 output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
+// Note: The system-assigned managed identity of the Container App has the same name as the Container App itself
+output CONTAINER_APP_IDENTITY_NAME string = acaInfrastructure.outputs.containerAppName
 output CONTAINER_APP_PRINCIPAL_ID string = acaInfrastructure.outputs.containerAppPrincipalId
 output AZURE_CONTAINER_APP_ENVIRONMENT_ID string = acaInfrastructure.outputs.containerAppEnvironmentId
 

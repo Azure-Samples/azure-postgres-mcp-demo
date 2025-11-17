@@ -119,27 +119,27 @@ This deployment creates:
 1. Create the database principal for the MCP server's managed identity, only run this command run in the **default postgres database**, the command is only allowed in this database:
 
     ```sql
-    SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_NAME>', false, false);
+    SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_IDENTITY_NAME>', false, false);
     ```
 
-    Replace `<CONTAINER_APP_NAME>` (e.g., `azmcp-postgres-server-nc3im7asyw`).
+    Replace `<CONTAINER_APP_IDENTITY_NAME>` (e.g., `azmcp-postgres-server-nc3im7asyw`).
 
     > [!Note]
-    >  Use `azd env get-values` command to find the `CONTAINER_APP_NAME` value
+    >  Use `azd env get-values` command to find the `CONTAINER_APP_IDENTITY_NAME` value
 
 2. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables. Make sure you run this command in the **correct database** your tables are located in.
    
    ```sql
-   GRANT SELECT ON my_table TO "<CONTAINER_APP_NAME>";
+   GRANT SELECT ON my_table TO "<CONTAINER_APP_IDENTITY_NAME>";
    ```
 
     For all tables
     ```sql
     -- Grant SELECT on all existing tables
-    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<CONTAINER_APP_NAME>";
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO "<CONTAINER_APP_IDENTITY_NAME>";
 
     -- Grant SELECT on all future tables
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<CONTAINER_APP_NAME>";
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "<CONTAINER_APP_IDENTITY_NAME>";
     ```
 
 ## Configure Foundry integration
