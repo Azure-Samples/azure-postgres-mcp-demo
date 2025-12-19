@@ -75,7 +75,16 @@ The fastest way to get started is by using the automated deployment script.
     > Find your **Foundry project** Resource ID in your Azure portal.  **JSON View** → **Resource ID**:
     ![Screenshot of Azure details page.](images/azure_json_view_aif.png)
 
-3. Create a new azd environment and deploy. Make sure you are in the main directory (`azure-postgres-mcp-demo`):
+3. Log into Azure CLI and Azure Developer CLI with the appropriate Azure account/subscription before deploying the MCP server
+   
+   ```bash
+    az login
+   ```
+   ```bash
+   azd auth login
+   ```
+
+4. Create a new azd environment and deploy. Make sure you are in the main directory (`azure-postgres-mcp-demo`):
 
     ```bash
     azd env new
@@ -84,7 +93,7 @@ The fastest way to get started is by using the automated deployment script.
     azd up
     ```
 
-    The deployment **usually takes 5-8 mins**. After deployment completes, azd will output the MCP server URL + Managed Identity info you'll use in the next steps.
+    The deployment **usually takes 1-2 mins**. After deployment completes, azd will output the MCP server URL + Managed Identity info you'll use in the next steps.
 
 This deployment creates:
 - Azure Container App running the MCP server with Managed Identity (Reader access to your PostgreSQL server)
@@ -97,7 +106,7 @@ This deployment creates:
 ### Step 2: Configure database access
 1. Connect to your PostgreSQL server using `psql` or your preferred PostgreSQL client:
 
-   Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.).    Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.). Find details for your connection in the **Connect** Tab in your Postgres Resource in the Azure Portal:
+    Set the following environment variables by copying and pasting the lines below into your bash terminal (WSL, Azure Cloud Shell, etc.). Find details for your connection in the **Connect** Tab in your Postgres Resource in the Azure Portal:
    
    ![Connect Tab](images/azure-postgres-connect.png)
 
@@ -116,7 +125,7 @@ This deployment creates:
 
    Alternatively, you can connect via the [PostgreSQL VSCode extension](https://learn.microsoft.com/en-us/azure/postgresql/extensions/vs-code-extension/quickstart-connect#add-a-connection-to-postgresql)
 
-1. Create the database principal for the MCP server's managed identity, only run this command run in the **default postgres database**, the command is only allowed in this database:
+2. Create the database principal for the MCP server's managed identity, only run this command in the **default postgres database**, the command is only allowed in this database:
 
     ```sql
     SELECT * FROM pgaadauth_create_principal('<CONTAINER_APP_IDENTITY_NAME>', false, false);
@@ -127,7 +136,7 @@ This deployment creates:
     > [!Note]
     >  Use `azd env get-values` command to find the `CONTAINER_APP_IDENTITY_NAME` value
 
-2. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables. Make sure you run this command in the **correct database** your tables are located in.
+3. If you add new tables to your database, you will have to grant the MCP server permissions to the new tables. Make sure you run this command in the **correct database** your tables are located in.
    
    ```sql
    GRANT SELECT ON my_table TO "<CONTAINER_APP_IDENTITY_NAME>";
