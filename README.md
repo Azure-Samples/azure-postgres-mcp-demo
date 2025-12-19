@@ -100,7 +100,7 @@ This deployment creates:
 - Entra ID App Registration for MCP server authentication
 - Entra ID Role assignment for Foundry to authenticate to the MCP server
 
-![Screenshot of Azure Portal components](images/azure_portal_resources.png)
+![Screenshot of Azure Portal components](images/azure-portal-resources.png)
 
 
 ### Step 2: Configure database access
