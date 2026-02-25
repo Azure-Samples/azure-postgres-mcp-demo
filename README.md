@@ -171,10 +171,11 @@ After you deploy your MCP server, connect it to the Foundry:
 1. In the Foundry portal, go to **Start building** → **Create agent**  
 1. Name your agent something like `postgres-mcp-agent`
 1. In the Tools section, select the **Add** → **Add a new tool**  
-1. Select the **Custom** tab 
-1. Choose **Model Context Protocol (MCP)** as the tool and click **Create** ![Find MCP](images/ai-foundry-ui-mcp-connect.png)
+1. Select the **Catalog** tab 
+1. Choose **Azure Database for PostgreSQL** as the tool and click **Create** ![Find Postgres Tool](images/ai-foundry-add-postgres-db-mcp.png)
+1. Click **Connect tool with endpoint**
 1. Enter the `CONTAINER_APP_URL` value as the Remote MCP Server endpoint. This is value is from the output of the `azd env get-values` command. 
-1. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-entra-connect.png)
+1. Select **Microsoft Entra** → **Project Managed Identity**  as the authentication method ![Connect via Entra](images/ai-foundry-postgres-tool-catalog.png)
 1. Enter the value of the <entra-app-client-id> enviromental variable as the audience. This is value from the output of the `azd env get-values`command. 
 
 >  **Note:** Remember, use `azd env get-values` command to find the `ENTRA_APP_CLIENT_ID` value and `CONTAINER_APP_URL`
