@@ -21,6 +21,7 @@ connection_name = os.getenv("CONNECTION_NAME")
 # Get MCP server configuration from environment variables
 mcp_server_url = os.environ.get("MCP_SERVER_URL", "")
 mcp_server_label = os.environ.get("MCP_SERVER_LABEL", "postgres")
+horizondb = mcp_server_label == "horizondb"
 
 project_client = AIProjectClient(
     endpoint=os.environ["PROJECT_ENDPOINT"],
@@ -55,7 +56,12 @@ with project_client:
     agent = agents_client.create_agent(
         model=os.environ["MODEL_DEPLOYMENT_NAME"],
         name="ignite-demo-agent-mcp",
-        instructions=f"""
+        instructions=(
+            "Use the HorizonDB MCP tools to answer questions about the configured database. "
+            "The connection is fixed by the server; do not pass subscription, resource-group, "
+            "server, database, or user arguments. Discover tables and columns before querying. "
+            "Only read-only SELECT queries are supported. Cast raw vector columns to text."
+            if horizondb else f"""
         You are a helpful agent that can use MCP tools to assist users. Use the available MCP tools to answer questions and perform tasks.
         "parameters":
 
@@ -67,7 +73,8 @@ with project_client:
                 "user": "{os.environ.get('POSTGRES_USER','')}",
         
         "learn": true
-        """,
+        """
+        ),
         tools=[mcp_tool_config],
     )
 

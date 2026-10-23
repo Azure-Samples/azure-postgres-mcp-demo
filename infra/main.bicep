@@ -10,8 +10,26 @@ param entraAppDisplayName string
 @description('Azure RBAC role definition ID for Container App (Reader role)')
 param acaRoleId string = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 
-@description('Full resource ID of the Postgres resource to assign the role on')
+@description('Full resource ID of the PostgreSQL Flexible Server or HorizonDB cluster. ARM Reader is assigned only for the Flexible Server backend.')
 param postgresResourceId string
+
+type HorizonDBConfiguration = {
+  @minLength(1)
+  image: string
+  @minLength(1)
+  host: string
+  @minLength(1)
+  database: string
+  user: string?
+  sslmode: ('verify-full' | 'verify-ca' | 'require')?
+}
+
+@description('Optional HorizonDB data-plane server configuration. Omit to use the existing Azure MCP Flexible Server deployment.')
+param horizonDB HorizonDBConfiguration?
+
+@secure()
+@description('Optional HorizonDB database password. Leave empty to use the Container App managed identity with Microsoft Entra authentication.')
+param horizonDBPassword string = ''
 
 @description('AI Foundry project resource ID (optional - only needed if assigning Entra App role to AIF project MI)')
 param aifProjectResourceId string
@@ -56,11 +74,13 @@ module acaInfrastructure 'modules/aca-infrastructure.bicep' = {
     azureAdTenantId: tenant().tenantId
     azureAdClientId: entraApp.outputs.entraAppClientId
     namespaces: ['postgres']
+    horizonDB: horizonDB
+    horizonDBPassword: horizonDBPassword
   }
 }
 
 // Deploy role assignment for ACA to access Postgres resource
-module acaRoleAssignment './modules/aca-role-assignment-resource.bicep' = {
+module acaRoleAssignment './modules/aca-role-assignment-resource.bicep' = if (horizonDB == null) {
   name: 'aca-role-assignment'
   params: {
     postgresResourceId: postgresResourceId
@@ -93,7 +113,7 @@ output ENTRA_APP_ROLE_ID string = entraApp.outputs.entraAppRoleId
 output ENTRA_APP_IDENTIFIER_URI string = entraApp.outputs.entraAppIdentifierUri
 
 // ACA Infrastructure outputs
-output CONTAINER_APP_URL string = acaInfrastructure.outputs.containerAppUrl
+output CONTAINER_APP_URL string = '${acaInfrastructure.outputs.containerAppUrl}${horizonDB != null ? '/mcp' : ''}'
 output CONTAINER_APP_NAME string = acaInfrastructure.outputs.containerAppName
 // Note: The system-assigned managed identity of the Container App has the same name as the Container App itself
 output CONTAINER_APP_IDENTITY_NAME string = acaInfrastructure.outputs.containerAppName
