@@ -22,6 +22,12 @@ The system consists of three main components:
 
 3. **PostgreSQL Database** (Target): Azure Database for PostgreSQL Flexible Server with Entra ID authentication enabled.
 
+**Azure HorizonDB** is also supported through an optional, read-only data-plane
+server. The default Flexible Server deployment is unchanged. See
+[HorizonDB setup and testing](server/README.md) for local MCP and authenticated
+Container Apps / Foundry deployment. HorizonDB connections use the actual cluster
+DNS endpoint, not a synthesized Flexible Server hostname.
+
 **Identity Separation**: Two separate managed identities are used - the client MI (Foundry) authenticates to the MCP Server, while the MCP Server uses its own ACA MI to access PostgreSQL, ensuring proper security isolation.
 
 ## Prerequisites

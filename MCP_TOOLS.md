@@ -2,6 +2,12 @@
 
 This document provides examples of available MCP tools for Azure Postgres, their input schemas, expected output formats and example prompts.
 
+These Azure MCP examples describe the default **Flexible Server** backend. The
+optional **HorizonDB** backend has a fixed connection and four read-only tools,
+with no subscription, resource-group, server, database, or user tool arguments.
+See [HorizonDB setup and tool scope](server/README.md) before using these prompts
+with a HorizonDB deployment.
+
 ---
 
 ## Table of Contents

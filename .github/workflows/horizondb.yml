@@ -1,0 +1,19 @@
+name: HorizonDB
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r server/requirements.txt
+      - run: python -m unittest discover -s server -p 'test_*.py' -v
+      - run: pip check
+      - run: az bicep build --file infra/main.bicep --stdout > /tmp/template.json

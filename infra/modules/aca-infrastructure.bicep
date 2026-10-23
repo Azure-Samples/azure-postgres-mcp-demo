@@ -39,6 +39,12 @@ param azureAdClientId string
 @maxLength(3)
 param namespaces array
 
+@description('Optional HorizonDB data-plane configuration, supplied by main.bicep.')
+param horizonDB object?
+
+@secure()
+param horizonDBPassword string = ''
+
 var baseArgs = [
   '--transport'
   'http'
@@ -73,6 +79,12 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: containerAppsEnvironment.id
     configuration: {
       activeRevisionsMode: 'Single'
+      secrets: !empty(horizonDBPassword) ? [
+        {
+          name: 'horizondb-password'
+          value: horizonDBPassword
+        }
+      ] : []
       ingress: {
         external: true
         targetPort: 8080
@@ -91,10 +103,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     template: {
       containers: [
         {
-          image: 'mcr.microsoft.com/azure-sdk/azure-mcp:latest'
+          image: horizonDB != null ? horizonDB!.image : 'mcr.microsoft.com/azure-sdk/azure-mcp:latest'
           name: containerAppName
           command: []
-          args: serverArgs
+          args: horizonDB != null ? [] : serverArgs
           resources: {
             cpu: json(cpuCores)
             memory: memorySize
@@ -146,7 +158,41 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'AZURE_MCP_DANGEROUSLY_DISABLE_HTTPS_REDIRECTION'
               value: 'true'
             }
-          ], !empty(appInsightsConnectionString) ? [
+          ], horizonDB != null ? [
+            {
+              name: 'PGHOST'
+              value: horizonDB!.host
+            }
+            {
+              name: 'PGDATABASE'
+              value: horizonDB!.database
+            }
+            {
+              name: 'PGUSER'
+              value: horizonDB.?user ?? containerAppName
+            }
+            {
+              name: 'PGSSLMODE'
+              value: horizonDB.?sslmode ?? 'verify-full'
+            }
+            {
+              name: 'MCP_TRANSPORT'
+              value: 'streamable-http'
+            }
+            {
+              name: 'AZURE_TENANT_ID'
+              value: azureAdTenantId
+            }
+            {
+              name: 'ENTRA_APP_CLIENT_ID'
+              value: azureAdClientId
+            }
+          ] : [], horizonDB != null && !empty(horizonDBPassword) ? [
+            {
+              name: 'PGPASSWORD'
+              secretRef: 'horizondb-password'
+            }
+          ] : [], !empty(appInsightsConnectionString) ? [
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsightsConnectionString
@@ -177,4 +223,3 @@ output containerAppUrl string = 'https://${containerApp.properties.configuration
 output containerAppName string = containerApp.name
 output containerAppPrincipalId string = containerApp.identity.principalId
 output containerAppEnvironmentId string = containerAppsEnvironment.id
-
